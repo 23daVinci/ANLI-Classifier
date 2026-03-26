@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANLI R2 — NLI Classifier</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+  }
+
+  .subtitle a { color: #6c9eff; text-decoration: none; }
+  .subtitle a:hover { text-decoration: underline; }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #2a2d37;
+    border-radius: 8px;
+    background: #1a1d27;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: #6c9eff;
+  }
+
+  .input-group { margin-bottom: 16px; }
+
+  .examples-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .examples {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .example-btn {
+    padding: 6px 14px;
+    border: 1px solid #2a2d37;
+    border-radius: 20px;
+    background: #1a1d27;
+    color: #aaa;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .example-btn:hover {
+    border-color: #6c9eff;
+    color: #6c9eff;
+  }
+
+  .predict-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6c9eff, #5b7fd6);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .predict-btn:hover { opacity: 0.9; }
+  .predict-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Spinner */
+  .spinner {
+    display: none;
+    margin: 24px auto;
+    width: 36px;
+    height: 36px;
+    border: 3px solid #2a2d37;
+    border-top-color: #6c9eff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .spinner.active { display: block; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  .result-card {
+    display: none;
+    margin-top: 24px;
+    border: 1px solid #2a2d37;
+    border-radius: 12px;
+    background: #1a1d27;
+    padding: 24px;
+  }
+
+  .result-card.visible { display: block; }
+
+  .result-label {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .result-label.entailment { color: #34d399; }
+  .result-label.neutral    { color: #a1a1aa; }
+  .result-label.contradiction { color: #f87171; }
+
+  .result-confidence {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 20px;
+  }
+
+  .bar-group {
+    margin-bottom: 12px;
+  }
+
+  .bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+
+  .bar-name { color: #ccc; }
+  .bar-value { color: #888; font-variant-numeric: tabular-nums; }
+
+  .bar-track {
+    width: 100%;
+    height: 10px;
+    background: #2a2d37;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+
+  .bar-fill.entailment     { background: #34d399; }
+  .bar-fill.neutral        { background: #a1a1aa; }
+  .bar-fill.contradiction  { background: #f87171; }
+
+  .inference-time {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 16px;
+  }
+
+  .error-msg {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #2a1215;
+    border: 1px solid #5c1d24;
+    color: #f87171;
+    font-size: 0.9rem;
+  }
+
+  .error-msg.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>ANLI R2 — NLI Classifier</h1>
+  <p class="subtitle">
+    DeBERTa-v3-base · Entailment / Neutral / Contradiction ·
+    <a href="/docs" target="_blank">API Docs</a>
+  </p>
+
+  <div class="input-group">
+    <label for="premise">Premise</label>
+    <textarea id="premise" placeholder="Enter a factual passage..."></textarea>
+  </div>
+
+  <div class="input-group">
+    <label for="hypothesis">Hypothesis</label>
+    <textarea id="hypothesis" rows="2" placeholder="Enter a hypothesis to classify..."></textarea>
+  </div>
+
+  <p class="examples-label">Try an example:</p>
+  <div class="examples" id="examples"></div>
+
+  <button class="predict-btn" id="predictBtn" onclick="predict()">Classify</button>
+
+  <div class="spinner" id="spinner"></div>
+  <div class="error-msg" id="error"></div>
+
+  <div class="result-card" id="result">
+    <div class="result-label" id="resultLabel"></div>
+    <div class="result-confidence" id="resultConf"></div>
+
+    <div class="bar-group">
+      <div class="bar-header">
+        <span class="bar-name">Entailment</span>
+        <span class="bar-value" id="valE">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill entailment" id="barE"></div></div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-header">
+        <span class="bar-name">Neutral</span>
+        <span class="bar-value" id="valN">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill neutral" id="barN"></div></div>
+    </div>
+
+    <div class="bar-group">
+      <div class="bar-header">
+        <span class="bar-name">Contradiction</span>
+        <span class="bar-value" id="valC">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill contradiction" id="barC"></div></div>
+    </div>
+
+    <div class="inference-time" id="timing"></div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  {
+    name: "Entailment",
+    premise: "The Parma trolleybus system comprises four urban routes.",
+    hypothesis: "The trolleybus system has over 2 urban routes."
+  },
+  {
+    name: "Contradiction",
+    premise: "She moved to Paris in 2010.",
+    hypothesis: "She has never lived in France."
+  },
+  {
+    name: "Neutral",
+    premise: "She moved to Paris in 2010.",
+    hypothesis: "She enjoyed living in Paris."
+  },
+  {
+    name: "Numerical",
+    premise: "The company reported revenue of $4.2 billion in Q3, up from $3.8 billion the previous quarter.",
+    hypothesis: "The company's revenue decreased in Q3."
+  },
+  {
+    name: "World Knowledge",
+    premise: "Gabriel Julio Fernández Capello was born on October 24, 1964 in Buenos Aires, Argentina.",
+    hypothesis: "Gabriel was born in South America."
+  }
+];
+
+// Render example buttons
+const exDiv = document.getElementById("examples");
+EXAMPLES.forEach(ex => {
+  const btn = document.createElement("button");
+  btn.className = "example-btn";
+  btn.textContent = ex.name;
+  btn.onclick = () => {
+    document.getElementById("premise").value = ex.premise;
+    document.getElementById("hypothesis").value = ex.hypothesis;
+    predict();
+  };
+  exDiv.appendChild(btn);
+});
+
+async function predict() {
+  const premise = document.getElementById("premise").value.trim();
+  const hypothesis = document.getElementById("hypothesis").value.trim();
+
+  if (!premise || !hypothesis) return;
+
+  // UI state: loading
+  document.getElementById("predictBtn").disabled = true;
+  document.getElementById("spinner").classList.add("active");
+  document.getElementById("result").classList.remove("visible");
+  document.getElementById("error").classList.remove("visible");
+
+  try {
+    const res = await fetch("/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ premise, hypothesis })
+    });
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+    const data = await res.json();
+
+    // Label
+    const labelEl = document.getElementById("resultLabel");
+    labelEl.textContent = data.label;
+    labelEl.className = "result-label " + data.label;
+
+    // Confidence
+    document.getElementById("resultConf").textContent =
+      `${(data.confidence * 100).toFixed(1)}% confidence`;
+
+    // Bars
+    const p = data.probabilities;
+    document.getElementById("barE").style.width = (p.entailment * 100) + "%";
+    document.getElementById("barN").style.width = (p.neutral * 100) + "%";
+    document.getElementById("barC").style.width = (p.contradiction * 100) + "%";
+    document.getElementById("valE").textContent = (p.entailment * 100).toFixed(1) + "%";
+    document.getElementById("valN").textContent = (p.neutral * 100).toFixed(1) + "%";
+    document.getElementById("valC").textContent = (p.contradiction * 100).toFixed(1) + "%";
+
+    // Timing
+    document.getElementById("timing").textContent =
+      `Inference: ${data.inference_time_ms.toFixed(0)}ms`;
+
+    document.getElementById("result").classList.add("visible");
+
+  } catch (err) {
+    const errEl = document.getElementById("error");
+    errEl.textContent = err.message;
+    errEl.classList.add("visible");
+  } finally {
+    document.getElementById("predictBtn").disabled = false;
+    document.getElementById("spinner").classList.remove("active");
+  }
+}
+
+// Allow Ctrl+Enter to submit
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") predict();
+});
+</script>
+</body>
+</html>

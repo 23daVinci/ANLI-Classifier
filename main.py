@@ -15,9 +15,12 @@ import os
 import time
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import torch
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, DebertaV2Tokenizer
 
@@ -162,19 +165,17 @@ def predict_single(premise: str, hypothesis: str) -> PredictionResponse:
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {
-        "service": "ANLI R2 NLI Classifier",
-        "model": "DeBERTa-v3-base-mnli-fever-anli",
-        "task": "3-way NLI (entailment / neutral / contradiction)",
-        "endpoints": {
-            "/predict": "POST — classify a premise-hypothesis pair",
-            "/predict/batch": "POST — classify up to 64 pairs",
-            "/health": "GET — health check",
-            "/docs": "GET — interactive Swagger UI",
-        },
-    }
+    """Serve the UI."""
+    html_path = Path(__file__).parent / "static" / "index.html"
+    if html_path.exists():
+        return html_path.read_text()
+    return HTMLResponse(
+        "<h3>ANLI R2 NLI Classifier</h3>"
+        "<p>API is running. Visit <a href='/docs'>/docs</a> for Swagger UI.</p>"
+        "<p>Place static/index.html to enable the web UI.</p>"
+    )
 
 
 @app.get("/health", response_model=HealthResponse)
