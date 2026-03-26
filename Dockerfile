@@ -27,6 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY main.py .
+COPY static/ ./static/
 
 # Model directory — mounted as volume at runtime
 # Default path the app expects; override with MODEL_DIR env var
