@@ -1,0 +1,16 @@
+# ============================================================
+# ANLI R2 NLI Classifier — Inference Dependencies
+# CPU-only torch to keep the image small (~200MB vs ~2GB)
+# ============================================================
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+torch==2.11.0+cpu
+transformers==5.3.0
+sentencepiece==0.2.1
+safetensors==0.7.0
+tokenizers==0.22.2
+
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
+pydantic==2.12.5

@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  anli-classifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anli-nli-classifier
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./best_model:/app/model:ro    # Mount model weights (read-only)
+    environment:
+      - MODEL_DIR=/app/model
+      - MAX_LENGTH=256
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3

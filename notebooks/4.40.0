@@ -1,0 +1,9 @@
+Collecting protobuf==3.20.3
+  Downloading protobuf-3.20.3-py2.py3-none-any.whl.metadata (720 bytes)
+Collecting sentencepiece==0.2.0
+  Downloading sentencepiece-0.2.0.tar.gz (2.6 MB)
+     ---------------------------------------- 0.0/2.6 MB ? eta -:--:--     ---------------------------------------- 2.6/2.6 MB 27.0 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'error'
