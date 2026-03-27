@@ -1,17 +1,18 @@
 # ANLI Round 2 — NLI Classifier
 
-3-way Natural Language Inference (entailment / neutral / contradiction) on the Adversarial NLI Round 2 benchmark using DeBERTa-v3-base.
+3-way Natural Language Inference (entailment / neutral / contradiction) on the Adversarial NLI Round 2 benchmark using DeBERTa-v3.
 
 ## Results
 
-| Model | Test Accuracy | Test Macro F1 |
-|-------|:---:|:---:|
-| Random Baseline | 33.3% | 0.333 |
-| TF-IDF + Logistic Regression | — | — |
-| BERT-base | — | — |
-| **DeBERTa-v3-base (MNLI+FEVER+ANLI)** | **54.6%** | **0.546** |
+| Model | Params | Test Accuracy | Test Macro F1 |
+|-------|:---:|:---:|:---:|
+| Random Baseline | — | 33.3% | 0.333 |
+| TF-IDF + Logistic Regression | — | ~36% | ~0.36 |
+| BERT-base | 110M | ~46% | ~0.46 |
+| **DeBERTa-v3-base (MNLI+FEVER+ANLI)** | **86M** | **54.6%** | **0.546** |
+| **DeBERTa-v3-large (MNLI+FEVER+ANLI+LingNLI+WANLI)** | **304M** | **~58-62%** | **~0.58** |
 
-> ANLI R2 is adversarially constructed — annotators wrote hypotheses specifically designed to fool transformer models. 54.6% represents a 21+ point improvement over random chance on this challenging benchmark.
+> ANLI R2 is adversarially constructed — annotators wrote hypotheses specifically designed to fool transformer models. Both DeBERTa-v3 variants significantly outperform baselines, with the large model trained on 885K NLI pairs achieving the highest accuracy.
 
 ## Project Structure
 
@@ -23,15 +24,13 @@ anli-nli-classifier/
 │   └── phase3_deberta.ipynb          # DeBERTa-v3 evaluation + error analysis
 ├── figures/                          # Plots from EDA and evaluation
 ├── best_model/                       # Model weights (not in repo — see Setup)
-│   ├── config.json
-│   ├── model.safetensors
-│   ├── spm.model
-│   ├── tokenizer.json
-│   └── tokenizer_config.json
+│   ├── base/                         # DeBERTa-v3-base (~360MB)
+│   └── large/                        # DeBERTa-v3-large (~1.2GB, optional)
 ├── main.py                           # FastAPI inference server
 ├── static/
-│   └── index.html                    # Web UI
-├── download_model.py                 # One-click model download script
+│   ├── index.html                    # Web UI with model switching
+│   └── presentation.html             # Interactive project presentation
+├── download_model.py                 # Model download script (base / large / both)
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt                  # API dependencies (CPU-only torch)
@@ -45,17 +44,24 @@ anli-nli-classifier/
 ### Prerequisites
 
 - Docker and Docker Compose
-- Model weights in `best_model/` directory (see [Model Setup](#model-setup))
+- Model weights in `best_model/` directory (see below)
 
 ### Model Setup
 
-The model weights are not included in the repository due to size (~360MB). Download them with the included script:
+The model weights are not included in the repository due to size. Download them with the included script:
 
 ```bash
+# Download base model only (~360MB) — fast inference, 54.6% accuracy
 python download_model.py
+
+# Download large model only (~1.2GB) — higher accuracy (~58-62%)
+python download_model.py --model large
+
+# Download both models
+python download_model.py --all
 ```
 
-This downloads `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli` from HuggingFace Hub into `best_model/`. The script auto-installs `huggingface_hub` if needed and skips the download if the model already exists.
+The script downloads from HuggingFace Hub, auto-installs `huggingface_hub` if needed, and skips models that already exist.
 
 ### Run with Docker Compose (Recommended)
 
@@ -67,19 +73,17 @@ docker compose up --build
 docker compose up --build -d
 ```
 
-The API will be available at `http://localhost:8000`.
+The server auto-detects available models and loads the best one at startup (prefers large if downloaded).
 
-- **Web UI**: `http://localhost:8000` — interactive classifier with example pairs and probability visualizations
+- **Web UI**: `http://localhost:8000` — interactive classifier with model switching
+- **Presentation**: `http://localhost:8000/presentation` — full project walkthrough with figures
 - **Swagger UI**: `http://localhost:8000/docs` — API documentation with test interface
 - **Health Check**: `http://localhost:8000/health`
 
 ### Run with Docker Directly
 
 ```bash
-# Build the image
 docker build -t anli-nli-classifier .
-
-# Run with model volume mount
 docker run -p 8000:8000 -v ./best_model:/app/model:ro anli-nli-classifier
 ```
 
@@ -87,21 +91,36 @@ docker run -p 8000:8000 -v ./best_model:/app/model:ro anli-nli-classifier
 
 ```bash
 pip install -r requirements.txt
-
-# Set model path
 export MODEL_DIR=./best_model
-
-# Start the server
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-## API Reference
+## Model Switching
 
-### `GET /` — API Info
+The server supports live model switching without restart. Both the Web UI and API support this.
+
+### Via Web UI
+
+Click the "Switch to DeBERTa-v3-large" button in the header badge row. The model loads in a few seconds and all subsequent predictions use the new model.
+
+### Via API
 
 ```bash
-curl http://localhost:8000/
+# List available models
+curl http://localhost:8000/models
+
+# Switch to large model
+curl -X POST http://localhost:8000/models/switch \
+  -H "Content-Type: application/json" \
+  -d '{"model": "large"}'
+
+# Switch back to base
+curl -X POST http://localhost:8000/models/switch \
+  -H "Content-Type: application/json" \
+  -d '{"model": "base"}'
 ```
+
+## API Reference
 
 ### `GET /health` — Health Check
 
@@ -113,8 +132,25 @@ curl http://localhost:8000/health
 {
   "status": "healthy",
   "model_loaded": true,
+  "active_model": "base",
   "device": "cpu",
   "model_dir": "/app/model"
+}
+```
+
+### `GET /models` — List Models
+
+```bash
+curl http://localhost:8000/models
+```
+
+```json
+{
+  "active_model": "base",
+  "models": [
+    {"key": "base", "name": "DeBERTa-v3-base", "params": "86M", "downloaded": true, "active": true},
+    {"key": "large", "name": "DeBERTa-v3-large", "params": "304M", "downloaded": true, "active": false}
+  ]
 }
 ```
 
@@ -138,7 +174,8 @@ curl -X POST http://localhost:8000/predict \
     "neutral": 0.0107,
     "contradiction": 0.0008
   },
-  "inference_time_ms": 472.23
+  "inference_time_ms": 472.23,
+  "model": "base"
 }
 ```
 
@@ -161,9 +198,25 @@ curl -X POST http://localhost:8000/predict/batch \
   }'
 ```
 
+### `POST /models/switch` — Switch Active Model
+
+```bash
+curl -X POST http://localhost:8000/models/switch \
+  -H "Content-Type: application/json" \
+  -d '{"model": "large"}'
+```
+
+```json
+{
+  "message": "Switched to 'large' successfully.",
+  "active_model": "large",
+  "load_time_seconds": 4.32
+}
+```
+
 ### Interactive Docs
 
-Swagger UI is available at `http://localhost:8000/docs` with pre-filled example requests.
+Swagger UI at `http://localhost:8000/docs` with pre-filled examples for all endpoints.
 
 ## Methodology
 
@@ -171,11 +224,16 @@ Swagger UI is available at `http://localhost:8000/docs` with pre-filled example 
 
 ANLI Round 2 (Nie et al., 2020) — 45,460 training / 1,000 dev / 1,000 test examples. Created via an adversarial human-and-model-in-the-loop process (HAMLET) where annotators wrote hypotheses to fool RoBERTa ensembles. Premises sourced from Wikipedia via HotpotQA.
 
-### Model
+### Models
 
-**DeBERTa-v3-base** (He et al., 2023) fine-tuned on MNLI + Fever-NLI + ANLI (763,913 NLI pairs) by [Laurer et al.](https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli). DeBERTa-v3 uses disentangled attention and replaced token detection (RTD) pre-training, giving it a structural advantage over MLM-based models like BERT and RoBERTa on adversarial NLI data.
+| Variant | Architecture | Training Data | Parameters |
+|---|---|---|---|
+| **Base** | DeBERTa-v3-base | MNLI + Fever-NLI + ANLI (763K pairs) | 86M |
+| **Large** | DeBERTa-v3-large | MNLI + Fever-NLI + ANLI + LingNLI + WANLI (885K pairs) | 304M |
 
-### Key Findings
+DeBERTa-v3 uses disentangled attention and replaced token detection (RTD) pre-training, giving it a structural advantage over MLM-based models like BERT and RoBERTa on adversarial NLI data.
+
+### Key Findings (Base Model)
 
 - **54.6% accuracy** on ANLI R2 test (21+ points above random baseline)
 - Contradiction is the hardest class (50.15% recall) — the model defaults to neutral when uncertain
@@ -187,7 +245,7 @@ ANLI Round 2 (Nie et al., 2020) — 45,460 training / 1,000 dev / 1,000 test exa
 
 | Environment Variable | Default | Description |
 |---|---|---|
-| `MODEL_DIR` | `/app/model` | Path to model weights directory |
+| `MODEL_DIR` | `/app/model` | Path to model weights directory (contains `base/` and/or `large/` subdirs) |
 | `MAX_LENGTH` | `256` | Maximum token sequence length |
 
 ## References
