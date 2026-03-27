@@ -6,375 +6,81 @@
 <title>ANLI R2 NLI — Project Presentation</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#fafbfc;color:#1a1a2e}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:232px;height:100vh;background:#fff;border-right:1.5px solid #eef0f2;padding:28px 0;overflow-y:auto;z-index:10;display:flex;flex-direction:column}
+  .sidebar-brand{padding:0 22px;margin-bottom:28px}
+  .sidebar-title{font-size:.88rem;font-weight:700;color:#111;letter-spacing:-.02em}
+  .sidebar-sub{font-size:.72rem;color:#aaa;margin-top:2px;font-weight:500}
+  .nav-section{font-size:.65rem;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.1em;padding:16px 22px 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:9px 22px;font-size:.83rem;font-weight:500;color:#777;text-decoration:none;border-left:2.5px solid transparent;transition:all .15s;cursor:pointer}
+  .nav-link:hover{color:#333;background:#f8f9fb}
+  .nav-link.active{color:#4361ee;border-left-color:#4361ee;background:#f0f3ff;font-weight:600}
+  .nav-num{font-size:.68rem;font-family:'JetBrains Mono',monospace;color:#ccc;min-width:16px}
+  .nav-link.active .nav-num{color:#4361ee}
+  .sidebar-spacer{flex:1}
+  .nav-demo{padding:16px 22px}
+  .demo-btn{display:block;width:100%;padding:10px;border:1.5px solid #4361ee;border-radius:8px;background:#4361ee;color:#fff;font-size:.82rem;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-align:center;text-decoration:none;transition:all .15s}
+  .demo-btn:hover{background:#3a56d4}
 
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #fafbfc;
-    color: #1a1a2e;
-  }
+  /* Main */
+  .main{margin-left:232px;padding:52px 64px 80px;max-width:960px}
+  .section{display:none;animation:fadeIn .25s ease}
+  .section.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ---------- Sidebar ---------- */
-  .sidebar {
-    position: fixed;
-    top: 0; left: 0;
-    width: 232px;
-    height: 100vh;
-    background: #fff;
-    border-right: 1.5px solid #eef0f2;
-    padding: 28px 0;
-    overflow-y: auto;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-  }
+  h2{font-size:1.45rem;font-weight:700;color:#111;letter-spacing:-.03em;margin-bottom:6px}
+  h3{font-size:1.02rem;font-weight:600;color:#333;margin:28px 0 10px;letter-spacing:-.01em}
+  p,li{font-size:.92rem;line-height:1.75;color:#555;margin-bottom:10px}
+  strong{color:#333;font-weight:600}
+  em{color:#666}
+  code{font-family:'JetBrains Mono',monospace;font-size:.84rem;background:#f0f1f3;padding:2px 6px;border-radius:4px}
+  ul{padding-left:18px;margin-bottom:14px}
+  li{margin-bottom:5px}
+  .section-desc{color:#888;font-size:.88rem;margin-bottom:28px;border-left:2.5px solid #e0e2e7;padding-left:14px;line-height:1.7}
 
-  .sidebar-brand {
-    padding: 0 22px;
-    margin-bottom: 28px;
-  }
+  .figure{margin:20px 0;border:1.5px solid #eef0f2;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.03)}
+  .figure img{width:100%;display:block}
+  .figure-caption{padding:10px 16px;font-size:.78rem;color:#aaa;border-top:1px solid #f0f1f3;font-weight:500}
 
-  .sidebar-title {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: #111;
-    letter-spacing: -0.02em;
-  }
+  .metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+  .metric-card{padding:18px 14px;border:1.5px solid #eef0f2;border-radius:12px;background:#fff;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.02)}
+  .metric-value{font-size:1.65rem;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .metric-value.green{color:#059669}.metric-value.blue{color:#4361ee}.metric-value.red{color:#dc2626}.metric-value.gray{color:#71717a}
+  .metric-label{font-size:.72rem;color:#aaa;margin-top:3px;font-weight:500}
 
-  .sidebar-sub {
-    font-size: 0.72rem;
-    color: #aaa;
-    margin-top: 2px;
-    font-weight: 500;
-  }
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.87rem}
+  th{text-align:left;padding:9px 12px;background:#f8f9fb;color:#888;font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid #eef0f2}
+  td{padding:9px 12px;border-bottom:1px solid #f5f6f8;color:#444}
+  tr:last-child td{border-bottom:none}
+  tr.highlight td{background:#f0f3ff;color:#4361ee;font-weight:600}
+  .dim{color:#aaa}
 
-  .nav-section {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: #bbb;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 16px 22px 6px;
-  }
+  .insight{margin:20px 0;padding:14px 18px;border-radius:10px;border:1.5px solid #bbf7d0;background:#f0fdf4}
+  .insight-title{font-size:.72rem;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .insight p{color:#166534;margin:0;font-size:.87rem;line-height:1.6}
+  .warning{border-color:#fecaca;background:#fef2f2}
+  .warning .insight-title{color:#dc2626}
+  .warning p{color:#991b1b}
 
-  .nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 22px;
-    font-size: 0.83rem;
-    font-weight: 500;
-    color: #777;
-    text-decoration: none;
-    border-left: 2.5px solid transparent;
-    transition: all 0.15s;
-    cursor: pointer;
-  }
+  .kv-list{margin:10px 0}
+  .kv{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #f5f6f8}
+  .kv:last-child{border-bottom:none}
+  .kv-key{color:#999;min-width:155px;font-size:.85rem;font-weight:500}
+  .kv-val{color:#333;font-size:.85rem}
 
-  .nav-link:hover { color: #333; background: #f8f9fb; }
-  .nav-link.active {
-    color: #4361ee;
-    border-left-color: #4361ee;
-    background: #f0f3ff;
-    font-weight: 600;
-  }
+  .footer-nav{display:flex;justify-content:space-between;margin-top:48px;padding-top:18px;border-top:1.5px solid #f0f1f3}
+  .footer-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:1.5px solid #e0e2e7;border-radius:8px;background:#fff;color:#777;font-size:.85rem;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s}
+  .footer-btn:hover{border-color:#4361ee;color:#4361ee;transform:translateY(-1px)}
+  .footer-btn.hidden{visibility:hidden}
 
-  .nav-num {
-    font-size: 0.68rem;
-    font-family: 'JetBrains Mono', monospace;
-    color: #ccc;
-    min-width: 16px;
-  }
+  .code-block{background:#f4f5f7;border:1.5px solid #eef0f2;border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:.84rem;color:#333;line-height:1.8;margin:14px 0;overflow-x:auto}
+  .code-block .cmd{color:#059669}
 
-  .nav-link.active .nav-num { color: #4361ee; }
-
-  .sidebar-spacer { flex: 1; }
-
-  .nav-demo { padding: 16px 22px; }
-
-  .demo-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    border: 1.5px solid #4361ee;
-    border-radius: 8px;
-    background: #4361ee;
-    color: #fff;
-    font-size: 0.82rem;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.15s;
-  }
-
-  .demo-btn:hover { background: #3a56d4; }
-
-  /* ---------- Main ---------- */
-  .main {
-    margin-left: 232px;
-    padding: 52px 64px 80px;
-    max-width: 920px;
-  }
-
-  .section {
-    display: none;
-    animation: fadeIn 0.25s ease;
-  }
-
-  .section.active { display: block; }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Typography */
-  h2 {
-    font-size: 1.45rem;
-    font-weight: 700;
-    color: #111;
-    letter-spacing: -0.03em;
-    margin-bottom: 6px;
-  }
-
-  h3 {
-    font-size: 1.02rem;
-    font-weight: 600;
-    color: #333;
-    margin: 32px 0 12px;
-    letter-spacing: -0.01em;
-  }
-
-  p, li {
-    font-size: 0.92rem;
-    line-height: 1.75;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  strong { color: #333; font-weight: 600; }
-  em { color: #666; }
-  code { font-family: 'JetBrains Mono', monospace; font-size: 0.84rem; background: #f0f1f3; padding: 2px 6px; border-radius: 4px; }
-
-  ul { padding-left: 18px; margin-bottom: 14px; }
-  li { margin-bottom: 5px; }
-
-  .section-desc {
-    color: #888;
-    font-size: 0.88rem;
-    margin-bottom: 32px;
-    border-left: 2.5px solid #e0e2e7;
-    padding-left: 14px;
-    line-height: 1.7;
-  }
-
-  /* Figures */
-  .figure {
-    margin: 24px 0;
-    border: 1.5px solid #eef0f2;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
-  }
-
-  .figure img { width: 100%; display: block; }
-
-  .figure-caption {
-    padding: 10px 16px;
-    font-size: 0.78rem;
-    color: #aaa;
-    border-top: 1px solid #f0f1f3;
-    font-weight: 500;
-  }
-
-  /* Metric cards */
-  .metric-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin: 22px 0;
-  }
-
-  .metric-card {
-    padding: 20px 16px;
-    border: 1.5px solid #eef0f2;
-    border-radius: 12px;
-    background: #fff;
-    text-align: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-  }
-
-  .metric-value {
-    font-size: 1.7rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .metric-value.green { color: #059669; }
-  .metric-value.blue  { color: #4361ee; }
-  .metric-value.red   { color: #dc2626; }
-  .metric-value.gray  { color: #71717a; }
-
-  .metric-label {
-    font-size: 0.73rem;
-    color: #aaa;
-    margin-top: 4px;
-    font-weight: 500;
-  }
-
-  /* Tables */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 18px 0;
-    font-size: 0.88rem;
-  }
-
-  th {
-    text-align: left;
-    padding: 10px 14px;
-    background: #f8f9fb;
-    color: #888;
-    font-weight: 600;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    border-bottom: 1.5px solid #eef0f2;
-  }
-
-  td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #f5f6f8;
-    color: #444;
-  }
-
-  tr:last-child td { border-bottom: none; }
-
-  tr.highlight td {
-    background: #f0f3ff;
-    color: #4361ee;
-    font-weight: 600;
-  }
-
-  /* Insight callout */
-  .insight {
-    margin: 22px 0;
-    padding: 16px 20px;
-    border-radius: 10px;
-    border: 1.5px solid #bbf7d0;
-    background: #f0fdf4;
-  }
-
-  .insight-title {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #059669;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 6px;
-  }
-
-  .insight p { color: #166534; margin: 0; font-size: 0.88rem; line-height: 1.6; }
-
-  .warning {
-    border-color: #fecaca;
-    background: #fef2f2;
-  }
-
-  .warning .insight-title { color: #dc2626; }
-  .warning p { color: #991b1b; }
-
-  /* KV pairs */
-  .kv-list { margin: 12px 0; }
-
-  .kv {
-    display: flex;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #f5f6f8;
-  }
-
-  .kv:last-child { border-bottom: none; }
-
-  .kv-key {
-    color: #999;
-    min-width: 160px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-
-  .kv-val { color: #333; font-size: 0.85rem; }
-
-  /* Footer nav */
-  .footer-nav {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 52px;
-    padding-top: 20px;
-    border-top: 1.5px solid #f0f1f3;
-  }
-
-  .footer-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    border: 1.5px solid #e0e2e7;
-    border-radius: 8px;
-    background: #fff;
-    color: #777;
-    font-size: 0.85rem;
-    font-weight: 500;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.15s;
-  }
-
-  .footer-btn:hover { border-color: #4361ee; color: #4361ee; transform: translateY(-1px); }
-  .footer-btn.hidden { visibility: hidden; }
-
-  /* Code block */
-  .code-block {
-    background: #f4f5f7;
-    border: 1.5px solid #eef0f2;
-    border-radius: 10px;
-    padding: 16px 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.84rem;
-    color: #333;
-    line-height: 1.8;
-    margin: 16px 0;
-    overflow-x: auto;
-  }
-
-  .code-block .cmd { color: #059669; }
-
-  /* Keyboard hint */
-  .kbd-hint {
-    position: fixed;
-    bottom: 20px;
-    right: 24px;
-    font-size: 0.72rem;
-    color: #ccc;
-    background: #fff;
-    border: 1px solid #eef0f2;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .kbd-hint kbd {
-    display: inline-block;
-    padding: 1px 5px;
-    font-size: 0.68rem;
-    background: #f0f1f3;
-    border: 1px solid #e0e2e7;
-    border-radius: 3px;
-    color: #999;
-  }
+  .kbd-hint{position:fixed;bottom:20px;right:24px;font-size:.72rem;color:#ccc;background:#fff;border:1px solid #eef0f2;padding:6px 12px;border-radius:6px;font-family:'JetBrains Mono',monospace}
+  .kbd-hint kbd{display:inline-block;padding:1px 5px;font-size:.68rem;background:#f0f1f3;border:1px solid #e0e2e7;border-radius:3px;color:#999}
 </style>
 </head>
 <body>
@@ -384,32 +90,24 @@
     <div class="sidebar-title">ANLI R2 Classifier</div>
     <div class="sidebar-sub">Project Presentation</div>
   </div>
-
   <div class="nav-section">Overview</div>
   <a class="nav-link active" onclick="goTo('intro')"><span class="nav-num">01</span> Introduction</a>
-
   <div class="nav-section">Analysis</div>
   <a class="nav-link" onclick="goTo('eda')"><span class="nav-num">02</span> EDA</a>
   <a class="nav-link" onclick="goTo('baselines')"><span class="nav-num">03</span> Baselines</a>
-
   <div class="nav-section">Results</div>
   <a class="nav-link" onclick="goTo('model')"><span class="nav-num">04</span> DeBERTa-v3</a>
   <a class="nav-link" onclick="goTo('errors')"><span class="nav-num">05</span> Error Analysis</a>
-
   <div class="nav-section">Deployment</div>
   <a class="nav-link" onclick="goTo('deploy')"><span class="nav-num">06</span> Architecture</a>
   <a class="nav-link" onclick="goTo('future')"><span class="nav-num">07</span> Conclusions</a>
-
   <div class="sidebar-spacer"></div>
-
-  <div class="nav-demo">
-    <a href="/" class="demo-btn">&#9654;&ensp;Live Demo</a>
-  </div>
+  <div class="nav-demo"><a href="/" class="demo-btn">&#9654;&ensp;Live Demo</a></div>
 </div>
 
 <div class="main">
 
-  <!-- ==================== 01 INTRO ==================== -->
+  <!-- ===== 01 INTRO ===== -->
   <div class="section active" id="intro">
     <h2>Adversarial NLI — Round 2</h2>
     <p class="section-desc">
@@ -419,7 +117,7 @@
 
     <h3>The Task</h3>
     <p>
-      Given a <strong>premise</strong> (factual passage) and a <strong>hypothesis</strong>,
+      Given a <strong>premise</strong> and a <strong>hypothesis</strong>,
       predict one of three labels: <span style="color:#059669;font-weight:600">entailment</span>,
       <span style="color:#71717a;font-weight:600">neutral</span>, or
       <span style="color:#dc2626;font-weight:600">contradiction</span>.
@@ -427,26 +125,18 @@
 
     <h3>Why ANLI R2 is Hard</h3>
     <p>
-      Unlike standard NLI datasets (SNLI, MNLI), ANLI was collected via an adversarial
-      human-and-model-in-the-loop process called <strong>HAMLET</strong>. In Round 2, human annotators wrote
-      hypotheses specifically designed to fool a RoBERTa ensemble trained on SNLI + MNLI +
-      FEVER-NLI + Round 1. Only examples the model got wrong made it into the dataset.
+      ANLI was collected via <strong>HAMLET</strong> — a human-and-model-in-the-loop adversarial process.
+      In Round 2, annotators wrote hypotheses designed to fool a RoBERTa ensemble trained on
+      SNLI + MNLI + FEVER-NLI + Round 1. Only examples the model got wrong entered the dataset,
+      making surface-level heuristics unreliable and demanding genuine language understanding.
     </p>
 
-    <div class="insight">
-      <div class="insight-title">Key Implication</div>
-      <p>Surface-level heuristics (lexical overlap, negation keywords) are unreliable.
-         The dataset requires genuine language understanding and reasoning.</p>
-    </div>
-
-    <h3>Dataset Overview</h3>
+    <h3>Dataset</h3>
     <div class="kv-list">
-      <div class="kv"><span class="kv-key">Training Set</span><span class="kv-val">45,460 examples</span></div>
-      <div class="kv"><span class="kv-key">Validation Set</span><span class="kv-val">1,000 examples</span></div>
-      <div class="kv"><span class="kv-key">Test Set</span><span class="kv-val">1,000 examples</span></div>
+      <div class="kv"><span class="kv-key">Splits</span><span class="kv-val">45,460 train &middot; 1,000 dev &middot; 1,000 test</span></div>
       <div class="kv"><span class="kv-key">Classes</span><span class="kv-val">Entailment (0) &middot; Neutral (1) &middot; Contradiction (2)</span></div>
       <div class="kv"><span class="kv-key">Premise Source</span><span class="kv-val">Wikipedia via HotpotQA</span></div>
-      <div class="kv"><span class="kv-key">Adversary Model</span><span class="kv-val">RoBERTa ensemble (SNLI+MNLI+FEVER+R1)</span></div>
+      <div class="kv"><span class="kv-key">Adversary</span><span class="kv-val">RoBERTa ensemble (SNLI+MNLI+FEVER+R1)</span></div>
     </div>
 
     <div class="footer-nav">
@@ -455,88 +145,69 @@
     </div>
   </div>
 
-  <!-- ==================== 02 EDA ==================== -->
+  <!-- ===== 02 EDA ===== -->
   <div class="section" id="eda">
     <h2>Exploratory Data Analysis</h2>
     <p class="section-desc">
-      Understanding dataset structure, distributions, and linguistic patterns
-      to inform modeling decisions.
+      Understanding dataset structure and linguistic patterns to inform modeling decisions.
     </p>
 
     <h3>Label Distribution</h3>
     <p>
-      The dev and test sets are perfectly balanced (~33.3% each class), but the
-      training set is notably imbalanced: neutral dominates at 46.1%, followed by
-      entailment at 31.8%, with contradiction underrepresented at 22.1%. This imbalance
-      is a natural artifact of the adversarial collection — annotators found it easier to
-      write hypotheses that models misclassify as neutral. This is worth noting for training
-      strategies like class weighting or stratified sampling.
+      Dev and test are balanced (~33.3% each), but train is imbalanced:
+      neutral 46.1%, entailment 31.8%, contradiction 22.1% — a natural artifact of
+      the adversarial collection where neutral was easiest to fool models on.
     </p>
     <div class="figure">
       <img src="/figures/label_distribution.png" alt="Label Distribution">
-      <div class="figure-caption">Fig 1 — Label distribution across train, dev, and test splits.</div>
+      <div class="figure-caption">Fig 1 — Label distribution across splits. Train imbalance may hurt contradiction recall.</div>
     </div>
 
-    <h3>Text Length &amp; Tokenization</h3>
+    <h3>Tokenization &amp; Length</h3>
     <p>
-      Premises are substantially longer than hypotheses (median 54 vs 9 words),
-      with a combined median of 64 words and 95th percentile at 80 words.
-      Using the actual DeBERTa-v3 SentencePiece tokenizer, we found that
-      95%+ of premise-hypothesis pairs fit within 256 subword tokens.
-      This informed our <code>max_length=256</code> choice — saving ~50% memory
-      vs the default 512 with minimal truncation. Text lengths are also consistent
-      across all three classes, ruling out length as a discriminative feature.
+      Premises are long (median 54 words), hypotheses short (median 9).
+      Using the DeBERTa-v3 SentencePiece tokenizer, 95%+ of pairs fit within 256 tokens —
+      informing our <code>max_length=256</code> choice and saving ~50% memory vs 512.
+      Text lengths are consistent across classes, ruling out length as a discriminative feature.
     </p>
     <div class="figure">
       <img src="/figures/token_lengths.png" alt="Token Length Distribution">
-      <div class="figure-caption">Fig 2 — DeBERTa-v3 token length distribution with max_length cutoffs.</div>
+      <div class="figure-caption">Fig 2 — DeBERTa-v3 token lengths. 256 covers 95%+ with no per-class bias.</div>
     </div>
 
-    <h3>Lexical Overlap Analysis</h3>
+    <h3>Lexical Overlap</h3>
     <p>
-      In standard NLI datasets like SNLI, high word overlap between premise and hypothesis
-      strongly predicts entailment. We computed Jaccard similarity per class and found the
-      distributions almost completely overlap — lexical similarity carries <strong>no signal</strong> in ANLI R2.
+      Jaccard similarity distributions nearly completely overlap across classes —
+      lexical similarity carries <strong>no signal</strong> in ANLI R2, unlike SNLI where
+      high overlap strongly predicts entailment.
     </p>
     <div class="figure">
       <img src="/figures/lexical_overlap.png" alt="Lexical Overlap">
-      <div class="figure-caption">Fig 3 — Jaccard similarity distributions by class. Near-complete overlap confirms surface features are uninformative.</div>
+      <div class="figure-caption">Fig 3 — Jaccard similarity by class. Near-complete overlap confirms surface features are uninformative.</div>
     </div>
 
-    <h3>Linguistic Phenomena</h3>
+    <h3>Linguistic Phenomena &amp; Feature Correlation</h3>
     <p>
-      We tagged hypotheses by reasoning type: negation, numerical,
-      quantifier, temporal, and comparative. <strong>Numerical reasoning is by far the most common</strong>,
-      appearing in ~29% of entailment and ~33% of contradiction hypotheses. Contradiction
-      hypotheses also show elevated negation rates (~14% vs ~7% for neutral), suggesting
-      annotators frequently used numerical comparisons and negation to construct adversarial examples.
-      This framework feeds directly into the error analysis in Section 05.
+      <strong>Numerical reasoning</strong> is most common (~29–33% of hypotheses).
+      Contradiction hypotheses show elevated negation (~14% vs ~7% for neutral).
+      Despite this, the correlation matrix shows <strong>no engineered feature correlates with the
+      label above 0.07</strong> — quantitative proof that ANLI R2's adversarial design
+      neutralized surface-level shortcuts.
     </p>
     <div class="figure">
       <img src="/figures/linguistic_phenomena.png" alt="Linguistic Phenomena">
-      <div class="figure-caption">Fig 4 — Distribution of linguistic phenomena across training hypotheses.</div>
+      <div class="figure-caption">Fig 4 — Linguistic phenomena distribution. Numerical reasoning dominates across all classes.</div>
     </div>
-
-    <h3>Feature Correlation</h3>
-    <p>
-      The correlation matrix confirms what the individual analyses suggest: <strong>no engineered
-      feature is meaningfully correlated with the label</strong>. The highest label correlation is
-      just 0.07 (negation), with Jaccard similarity at 0.05 and all others near zero. This is
-      the quantitative proof that ANLI R2's adversarial construction successfully neutralized
-      the surface-level shortcuts that plague earlier NLI datasets.
-    </p>
     <div class="figure">
       <img src="/figures/correlation_heatmap.png" alt="Feature Correlation Matrix">
-      <div class="figure-caption">Fig 5 — Feature correlation matrix. Label column shows near-zero correlation with all engineered features.</div>
+      <div class="figure-caption">Fig 5 — Feature correlation matrix. All features show near-zero label correlation.</div>
     </div>
 
     <div class="insight">
       <div class="insight-title">EDA Takeaways</div>
-      <p>Train set is imbalanced (neutral 46.1%, contradiction only 22.1%) — may hurt contradiction recall.
-         Premise median 54 words, hypothesis median 9 words; 256 tokens covers 95%+ with no per-class length bias.
-         Lexical overlap is uninformative across all classes &rarr; bag-of-words models will fail.
-         Numerical reasoning dominates (~30%), with contradiction hypotheses showing elevated negation (~14%).
-         No engineered feature correlates with the label above 0.07 &rarr; a powerful contextual model is required.</p>
+      <p>Train imbalance (neutral 46.1%, contradiction 22.1%) may hurt contradiction recall.
+         256 tokens covers 95%+. Lexical overlap is uninformative.
+         No engineered feature correlates with the label &rarr; a powerful contextual model is required.</p>
     </div>
 
     <div class="footer-nav">
@@ -545,33 +216,53 @@
     </div>
   </div>
 
-  <!-- ==================== 03 BASELINES ==================== -->
+  <!-- ===== 03 BASELINES ===== -->
   <div class="section" id="baselines">
     <h2>Baseline Models</h2>
     <p class="section-desc">
-      Establishing performance floors to contextualize the primary model.
+      Establishing performance floors to contextualize DeBERTa-v3.
+      Naive baselines averaged over 50 seeds; classical ML tested across two featurization strategies.
     </p>
 
-    <h3>Model Progression</h3>
+    <h3>Full Model Progression</h3>
     <table>
       <thead>
         <tr><th>Model</th><th>Approach</th><th>Test Acc</th><th>Macro F1</th></tr>
       </thead>
       <tbody>
-        <tr><td>Random</td><td>Uniform random</td><td>33.3%</td><td>0.333</td></tr>
-        <tr><td>Majority</td><td>Most frequent class</td><td>33.4%</td><td>0.167</td></tr>
-        <tr><td>TF-IDF + LogReg</td><td>Bag-of-words, classical ML</td><td>~36%</td><td>~0.36</td></tr>
-        <tr><td>BERT-base</td><td>Fine-tuned transformer</td><td>~46%</td><td>~0.46</td></tr>
-        <tr class="highlight"><td>DeBERTa-v3-base</td><td>MNLI+FEVER+ANLI pre-trained</td><td>54.6%</td><td>0.546</td></tr>
+        <tr><td>Random Uniform</td><td>50-seed average</td><td>33.5%</td><td>0.335</td></tr>
+        <tr><td>Majority Class</td><td>Always predict neutral</td><td>33.3%</td><td>0.167</td></tr>
+        <tr><td>LogReg (concat TF-IDF)</td><td>50K features, unigrams+bigrams</td><td>35.0%</td><td>0.335</td></tr>
+        <tr><td>LinearSVC (sep TF-IDF + NLI)</td><td>60K features + 8 hand-crafted</td><td>42.5%</td><td>0.421</td></tr>
+        <tr><td>BERT-base (fine-tuned)</td><td>Fine-tuned 3 epochs</td><td>43.5%</td><td>0.431</td></tr>
+        <tr><td>DeBERTa-v3-base</td><td>MNLI+FEVER+ANLI pre-trained</td><td>54.6%</td><td>0.546</td></tr>
+        <tr class="highlight"><td>DeBERTa-v3-large</td><td>MNLI+FEVER+ANLI pre-trained (304M)</td><td>68.2%</td><td>0.682</td></tr>
       </tbody>
     </table>
 
     <div class="insight">
       <div class="insight-title">Why This Progression Matters</div>
-      <p>TF-IDF barely beats random (~36%) — confirming lexical features are useless.
-         BERT-base plateaus at ~46% — same MLM pre-training the adversary exploits.
-         DeBERTa-v3's disentangled attention + RTD objective provides the architectural edge to reach 54.6%.</p>
+      <p>Random and majority hover at 33%. Concat TF-IDF barely beats random (35%) — lexical features are useless.
+         Separate TF-IDF + NLI features push to 42.5%. BERT-base only adds +1% (43.5%) — same MLM objective
+         the adversary exploits. DeBERTa-v3-base jumps +11.1% via disentangled attention + RTD.
+         Scaling to large adds another +13.6%, reaching 68.2%.</p>
     </div>
+
+    <h3>Best Classical Model — Per-Class Detail</h3>
+    <p>
+      LinearSVC (sep+NLI) at 42.5% already reveals the pattern that persists through every model:
+      <strong>contradiction is hardest to recall</strong> (30.6%), while neutral recall leads (51.1%).
+    </p>
+    <table>
+      <thead>
+        <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:#059669;font-weight:600">Entailment</td><td>0.415</td><td>0.458</td><td>0.435</td></tr>
+        <tr><td style="color:#71717a;font-weight:600">Neutral</td><td>0.453</td><td>0.511</td><td>0.480</td></tr>
+        <tr><td style="color:#dc2626;font-weight:600">Contradiction</td><td>0.398</td><td>0.306</td><td>0.346</td></tr>
+      </tbody>
+    </table>
 
     <div class="footer-nav">
       <a class="footer-btn" onclick="goTo('eda')">&larr; EDA</a>
@@ -579,29 +270,30 @@
     </div>
   </div>
 
-  <!-- ==================== 04 MODEL ==================== -->
+  <!-- ===== 04 MODEL ===== -->
   <div class="section" id="model">
     <h2>DeBERTa-v3 Results</h2>
     <p class="section-desc">
-      Evaluation of MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli on ANLI Round 2.
+      Primary model evaluation — base (86M) and large (304M), both MoritzLaurer checkpoints
+      pre-trained on MNLI + Fever-NLI + ANLI.
     </p>
 
     <div class="metric-row">
       <div class="metric-card">
-        <div class="metric-value blue">54.6%</div>
-        <div class="metric-label">Test Accuracy</div>
+        <div class="metric-value blue">68.2%</div>
+        <div class="metric-label">Best Test Accuracy (large)</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value blue">0.546</div>
-        <div class="metric-label">Test Macro F1</div>
+        <div class="metric-value blue">0.682</div>
+        <div class="metric-label">Best Macro F1 (large)</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value green">+21.3%</div>
+        <div class="metric-value green">+34.9%</div>
         <div class="metric-label">Above Random</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value gray">86M</div>
-        <div class="metric-label">Parameters</div>
+        <div class="metric-value green">+24.7%</div>
+        <div class="metric-label">Above BERT-base</div>
       </div>
     </div>
 
@@ -609,27 +301,35 @@
     <div class="kv-list">
       <div class="kv"><span class="kv-key">Architecture</span><span class="kv-val">Disentangled attention — separate content &amp; position representations</span></div>
       <div class="kv"><span class="kv-key">Pre-training</span><span class="kv-val">Replaced Token Detection (RTD) instead of Masked LM</span></div>
-      <div class="kv"><span class="kv-key">Training Data</span><span class="kv-val">763,913 NLI pairs (MNLI + Fever-NLI + ANLI all rounds)</span></div>
-      <div class="kv"><span class="kv-key">Advantage</span><span class="kv-val">ANLI was built to fool MLM models; DeBERTa-v3 uses a different objective</span></div>
+      <div class="kv"><span class="kv-key">NLI Training</span><span class="kv-val">763,913 pairs (MNLI + Fever-NLI + ANLI all rounds)</span></div>
+      <div class="kv"><span class="kv-key">Key Advantage</span><span class="kv-val">ANLI was built to fool MLM models; DeBERTa-v3 uses a different objective</span></div>
     </div>
 
-    <h3>Confusion Matrix</h3>
+    <h3>Base vs Large — Per-Class Comparison</h3>
+    <table>
+      <thead>
+        <tr><th>Class</th><th colspan="3">Base (86M) — 54.6%</th><th colspan="3">Large (304M) — 68.2%</th></tr>
+        <tr><th></th><th>Prec</th><th>Rec</th><th>F1</th><th>Prec</th><th>Rec</th><th>F1</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="color:#059669;font-weight:600">Entailment</td><td>0.537</td><td>0.563</td><td>0.550</td><td>0.692</td><td>0.713</td><td>0.702</td></tr>
+        <tr><td style="color:#71717a;font-weight:600">Neutral</td><td>0.550</td><td>0.574</td><td>0.562</td><td>0.649</td><td>0.673</td><td>0.661</td></tr>
+        <tr><td style="color:#dc2626;font-weight:600">Contradiction</td><td>0.551</td><td>0.502</td><td>0.525</td><td>0.707</td><td>0.661</td><td>0.683</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Confusion Matrix (Base)</h3>
     <div class="figure">
       <img src="/figures/confusion_matrices.png" alt="Confusion Matrices">
-      <div class="figure-caption">Fig 6 — Confusion matrices for dev and test sets. Contradiction &rarr; Entailment is the dominant error.</div>
-    </div>
-
-    <h3>Per-Class Metrics</h3>
-    <div class="figure">
-      <img src="/figures/per_class_metrics.png" alt="Per-Class Metrics">
-      <div class="figure-caption">Fig 7 — Precision, recall, and F1 per class. Contradiction has highest precision but lowest recall (50%).</div>
+      <div class="figure-caption">Fig 6 — Confusion matrices (base model). Contradiction &rarr; Entailment is the dominant error (29.4%, n=98).</div>
     </div>
 
     <div class="insight">
-      <div class="insight-title">Key Finding</div>
-      <p>The model uses neutral as a "safe default" when uncertain — inflating neutral recall (60%)
-         at the expense of contradiction recall (50%). 29% of true contradictions are misclassified as entailment,
-         suggesting the model misses logical reversals when premise and hypothesis share semantic content.</p>
+      <div class="insight-title">Key Findings</div>
+      <p>Contradiction is consistently the hardest class: lowest recall in both base (50.2%) and
+         large (66.1%), with 29.4% of true contradictions misclassified as entailment.
+         Scaling from base to large improves all classes uniformly — contradiction F1 jumps from 0.525 to 0.683.
+         The large model narrows the per-class spread, but contradiction recall still trails.</p>
     </div>
 
     <div class="footer-nav">
@@ -638,17 +338,18 @@
     </div>
   </div>
 
-  <!-- ==================== 05 ERRORS ==================== -->
+  <!-- ===== 05 ERRORS ===== -->
   <div class="section" id="errors">
     <h2>Error Analysis</h2>
     <p class="section-desc">
       Understanding <em>why</em> the model fails — connecting back to linguistic phenomena from EDA.
+      Analysis on the base model's test set (454 errors out of 1,000 examples).
     </p>
 
     <h3>Error Rate by Phenomenon</h3>
     <div class="figure">
       <img src="/figures/error_analysis.png" alt="Error Analysis">
-      <div class="figure-caption">Fig 8 — Error rates by phenomenon (left) and misclassification flow (right).</div>
+      <div class="figure-caption">Fig 7 — Error rates by phenomenon (left) and misclassification flow (right). Dashed line = 45.4% overall.</div>
     </div>
 
     <table>
@@ -667,26 +368,26 @@
 
     <div class="insight warning">
       <div class="insight-title">Critical Finding</div>
-      <p>Every phenomenon has an error rate above 40%. Quantifier reasoning is hardest (50.9%) —
+      <p>Every phenomenon exceeds 40% error. Quantifier reasoning is hardest (50.9%) —
          words like "all", "some", "none" require precise logical scope reasoning.
          Surface-level examples (48.2%) are nearly as hard, indicating adversarial examples
-         exploit reasoning beyond our regex-based categories.</p>
+         exploit reasoning beyond regex-based categories.</p>
     </div>
 
     <h3>Confidence Calibration</h3>
     <div class="figure">
       <img src="/figures/confidence_analysis.png" alt="Confidence Analysis">
-      <div class="figure-caption">Fig 9 — Confidence distributions: correct vs. incorrect. Nearly identical.</div>
+      <div class="figure-caption">Fig 8 — Confidence distributions for correct (n=546) vs incorrect (n=454) predictions.</div>
     </div>
 
-    <div class="metric-row" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="metric-row" style="grid-template-columns:repeat(3,1fr)">
       <div class="metric-card">
         <div class="metric-value gray">0.883</div>
-        <div class="metric-label">Confidence (Correct)</div>
+        <div class="metric-label">Mean Conf (Correct)</div>
       </div>
       <div class="metric-card">
         <div class="metric-value red">0.867</div>
-        <div class="metric-label">Confidence (Errors)</div>
+        <div class="metric-label">Mean Conf (Errors)</div>
       </div>
       <div class="metric-card">
         <div class="metric-value red">58.1%</div>
@@ -694,42 +395,41 @@
       </div>
     </div>
 
-    <div class="insight warning">
-      <div class="insight-title">Overconfident Errors</div>
-      <p>The model is nearly as confident when wrong (0.867) as when right (0.883).
-         58% of errors exceed 90% confidence. Confidence filtering would not meaningfully improve reliability.</p>
-    </div>
+    <p>
+      The model is nearly as confident when wrong (0.867) as when right (0.883).
+      58% of errors exceed 90% confidence — confidence filtering would not improve reliability.
+    </p>
 
-    <h3>Example: High-Confidence Errors</h3>
+    <h3>High-Confidence Error Examples</h3>
     <table>
       <thead>
-        <tr><th>Premise</th><th>Hypothesis</th><th>True</th><th>Pred</th><th>Conf</th></tr>
+        <tr><th>Premise (truncated)</th><th>Hypothesis</th><th>True</th><th>Pred</th><th>Conf</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td>G.J. Fernández Capello born in Buenos Aires...</td>
+          <td>G.J. Fernández Capello born in Buenos Aires…</td>
           <td>Born south of Dallas, TX</td>
           <td style="color:#059669;font-weight:600">E</td>
           <td style="color:#dc2626;font-weight:600">C</td>
-          <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem">99.9%</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.82rem">99.9%</td>
         </tr>
         <tr>
-          <td>2 Cool 2 Be 4gotten is a Filipino film...</td>
+          <td>2 Cool 2 Be 4gotten is a Filipino film…</td>
           <td>Most famous actor is Natalie Portman</td>
           <td style="color:#dc2626;font-weight:600">C</td>
           <td style="color:#71717a;font-weight:600">N</td>
-          <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem">99.9%</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.82rem">99.9%</td>
         </tr>
         <tr>
-          <td>Muccan Station is a cattle station...</td>
+          <td>Muccan Station is a cattle station…</td>
           <td>Muccan Station is on the radio</td>
           <td style="color:#dc2626;font-weight:600">C</td>
           <td style="color:#71717a;font-weight:600">N</td>
-          <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem">99.9%</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:.82rem">99.9%</td>
         </tr>
       </tbody>
     </table>
-    <p style="color:#999; font-size:0.82rem; margin-top:8px;">
+    <p style="color:#999;font-size:.82rem;margin-top:6px">
       Error 1 requires geographic world knowledge. Errors 2–3 show the model defaulting to neutral
       when the hypothesis introduces unrelated information — failing to recognize contradiction.
     </p>
@@ -740,26 +440,22 @@
     </div>
   </div>
 
-  <!-- ==================== 06 DEPLOY ==================== -->
+  <!-- ===== 06 DEPLOY ===== -->
   <div class="section" id="deploy">
     <h2>Deployment Architecture</h2>
-    <p class="section-desc">
-      Containerized inference API with interactive web UI.
-    </p>
+    <p class="section-desc">Containerized inference API with interactive web UI.</p>
 
     <div class="kv-list">
       <div class="kv"><span class="kv-key">Framework</span><span class="kv-val">FastAPI + Uvicorn</span></div>
       <div class="kv"><span class="kv-key">Container</span><span class="kv-val">Docker (python:3.10-slim) &middot; CPU-only PyTorch</span></div>
-      <div class="kv"><span class="kv-key">Model Loading</span><span class="kv-val">Volume-mounted at runtime &mdash; image stays small</span></div>
+      <div class="kv"><span class="kv-key">Model Loading</span><span class="kv-val">Volume-mounted at runtime — image stays small</span></div>
       <div class="kv"><span class="kv-key">Inference</span><span class="kv-val">~380–470ms per prediction (CPU)</span></div>
       <div class="kv"><span class="kv-key">Health Check</span><span class="kv-val">Docker HEALTHCHECK + <code>/health</code> endpoint</span></div>
     </div>
 
     <h3>API Endpoints</h3>
     <table>
-      <thead>
-        <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
-      </thead>
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>GET</code></td><td><code>/</code></td><td>Web UI — interactive classifier</td></tr>
         <tr><td><code>GET</code></td><td><code>/health</code></td><td>Health check</td></tr>
@@ -783,36 +479,35 @@
     </div>
   </div>
 
-  <!-- ==================== 07 FUTURE ==================== -->
+  <!-- ===== 07 FUTURE ===== -->
   <div class="section" id="future">
     <h2>Conclusions &amp; Future Work</h2>
-    <p class="section-desc">
-      Summary of findings and directions for improvement.
-    </p>
+    <p class="section-desc">Summary of findings and directions for improvement.</p>
 
     <h3>What We Achieved</h3>
     <ul>
-      <li>End-to-end ML pipeline from EDA through containerized deployment</li>
-      <li>54.6% accuracy on ANLI R2 — 21+ points above random on adversarial data</li>
-      <li>Deep error analysis revealing systematic failure modes</li>
+      <li>End-to-end ML pipeline: EDA &rarr; baselines &rarr; model evaluation &rarr; Docker deployment</li>
+      <li>68.2% test accuracy with DeBERTa-v3-large — 34.9 points above random</li>
+      <li>Scaling study: random (33%) &rarr; TF-IDF (42.5%) &rarr; BERT (43.5%) &rarr; DeBERTa base (54.6%) &rarr; large (68.2%)</li>
+      <li>Deep error analysis across 6 linguistic phenomena with confidence calibration study</li>
       <li>Production-ready Docker deployment with REST API and interactive web UI</li>
     </ul>
 
     <h3>Limitations</h3>
     <ul>
-      <li>54.6% is well below human performance (~86%)</li>
-      <li>Model confidence is poorly calibrated on adversarial examples</li>
-      <li>Contradiction recall is only 50% — half of contradictions missed</li>
-      <li>No world knowledge or geographic reasoning capability</li>
+      <li>68.2% remains below human performance (~86%) — an 18-point gap</li>
+      <li>Confidence poorly calibrated: 58% of errors exceed 90% confidence</li>
+      <li>Contradiction recall (66.1% large, 50.2% base) still trails other classes</li>
+      <li>Requires world knowledge and geographic reasoning the model lacks</li>
     </ul>
 
     <h3>Future Directions</h3>
     <ul>
-      <li><strong>Confidence calibration</strong> — temperature scaling to make probabilities reliable</li>
-      <li><strong>DeBERTa-v3-large</strong> — 304M params, expected ~58–61% on R2</li>
-      <li><strong>Seed ensemble</strong> — average 3–5 models for +1–2% accuracy</li>
+      <li><strong>Confidence calibration</strong> — temperature scaling for reliable probabilities</li>
+      <li><strong>Seed ensemble</strong> — average 3–5 DeBERTa-v3-large for +1–2%</li>
       <li><strong>Targeted augmentation</strong> — LLM-generated quantifier/numerical examples</li>
       <li><strong>Hybrid reasoning</strong> — symbolic module for quantifiers and arithmetic</li>
+      <li><strong>Large model deployment</strong> — GPU inference or distillation for production</li>
     </ul>
 
     <h3>References</h3>
@@ -837,20 +532,18 @@
 <div class="kbd-hint">Navigate: <kbd>&larr;</kbd> <kbd>&rarr;</kbd></div>
 
 <script>
-const sections = ['intro','eda','baselines','model','errors','deploy','future'];
-
-function goTo(id) {
-  sections.forEach(s => document.getElementById(s).classList.remove('active'));
+const sections=['intro','eda','baselines','model','errors','deploy','future'];
+function goTo(id){
+  sections.forEach(s=>document.getElementById(s).classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
   document.querySelector(`.nav-link[onclick="goTo('${id}')"]`).classList.add('active');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
-
-document.addEventListener('keydown', e => {
-  const cur = sections.findIndex(s => document.getElementById(s).classList.contains('active'));
-  if (e.key === 'ArrowRight' && cur < sections.length - 1) goTo(sections[cur + 1]);
-  if (e.key === 'ArrowLeft' && cur > 0) goTo(sections[cur - 1]);
+document.addEventListener('keydown',e=>{
+  const cur=sections.findIndex(s=>document.getElementById(s).classList.contains('active'));
+  if(e.key==='ArrowRight'&&cur<sections.length-1)goTo(sections[cur+1]);
+  if(e.key==='ArrowLeft'&&cur>0)goTo(sections[cur-1]);
 });
 </script>
 </body>
