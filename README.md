@@ -29,6 +29,9 @@ anli-nli-classifier/
 │   ├── tokenizer.json
 │   └── tokenizer_config.json
 ├── main.py                           # FastAPI inference server
+├── static/
+│   └── index.html                    # Web UI
+├── download_model.py                 # One-click model download script
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt                  # API dependencies (CPU-only torch)
@@ -65,6 +68,10 @@ docker compose up --build -d
 ```
 
 The API will be available at `http://localhost:8000`.
+
+- **Web UI**: `http://localhost:8000` — interactive classifier with example pairs and probability visualizations
+- **Swagger UI**: `http://localhost:8000/docs` — API documentation with test interface
+- **Health Check**: `http://localhost:8000/health`
 
 ### Run with Docker Directly
 
