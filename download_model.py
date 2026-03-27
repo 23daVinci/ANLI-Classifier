@@ -1,20 +1,36 @@
 """
-Download the pre-trained DeBERTa-v3-base NLI model weights.
+Download DeBERTa-v3 NLI model weights.
 
-Run this once after cloning the repository:
-    python download_model.py
-
-The model will be saved to ./best_model/ (~360MB).
+Usage:
+    python download_model.py              # Download base model only
+    python download_model.py --model large # Download large model only
+    python download_model.py --all         # Download both models
 """
 
 import os
+import argparse
 
-def main():
-    output_dir = "./best_model"
+MODELS = {
+    "base": {
+        "repo_id": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+        "dir": "./best_model/base",
+        "size": "~360MB",
+        "description": "DeBERTa-v3-base (86M params) — fast, 54.6% on ANLI R2",
+    },
+    "large": {
+        "repo_id": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+        "dir": "./best_model/large",
+        "size": "~1.2GB",
+        "description": "DeBERTa-v3-large (304M params) — higher accuracy, ~58-62% on ANLI R2",
+    },
+}
 
-    if os.path.exists(os.path.join(output_dir, "model.safetensors")):
-        print(f"Model already exists at {output_dir}/")
-        print("Delete the folder and re-run if you want to re-download.")
+
+def download(model_key):
+    info = MODELS[model_key]
+
+    if os.path.exists(os.path.join(info["dir"], "model.safetensors")):
+        print(f"[{model_key}] Already exists at {info['dir']}/")
         return
 
     try:
@@ -24,16 +40,40 @@ def main():
         os.system("pip install huggingface_hub")
         from huggingface_hub import snapshot_download
 
-    print("Downloading DeBERTa-v3-base-mnli-fever-anli...")
-    print("This may take a few minutes (~360MB).\n")
+    print(f"\n[{model_key}] Downloading {info['description']}")
+    print(f"  Source: {info['repo_id']}")
+    print(f"  Size:   {info['size']}")
+    print(f"  Dest:   {info['dir']}")
+    print()
 
     snapshot_download(
-        repo_id="MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
-        local_dir=output_dir,
+        repo_id=info["repo_id"],
+        local_dir=info["dir"],
     )
 
-    print(f"\nModel downloaded to {output_dir}/")
-    print("You can now run: docker compose up --build")
+    print(f"\n[{model_key}] Downloaded to {info['dir']}/")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Download NLI model weights")
+    parser.add_argument(
+        "--model", choices=["base", "large"], default="base",
+        help="Which model to download (default: base)"
+    )
+    parser.add_argument(
+        "--all", action="store_true",
+        help="Download both base and large models"
+    )
+    args = parser.parse_args()
+
+    if args.all:
+        for key in MODELS:
+            download(key)
+    else:
+        download(args.model)
+
+    print("\nDone! Start the server with: docker compose up --build")
+
 
 if __name__ == "__main__":
     main()

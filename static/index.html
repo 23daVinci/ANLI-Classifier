@@ -298,8 +298,9 @@
   <div class="header">
     <h1>NLI Classifier</h1>
     <div class="badge-row">
-      <span class="badge"><span class="dot"></span> DeBERTa-v3-base</span>
+      <span class="badge" id="modelBadge"><span class="dot"></span> loading...</span>
       <span class="badge">ANLI Round 2</span>
+      <button class="badge accent" id="switchBtn" onclick="switchModel()" style="cursor:pointer;font-family:inherit;">Switch model</button>
       <span class="badge accent"><a href="/presentation">Presentation</a></span>
       <span class="badge accent"><a href="/docs" target="_blank">API Docs</a></span>
     </div>
@@ -436,6 +437,71 @@ async function predict() {
 document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") predict();
 });
+
+// Model state
+let currentModel = null;
+let models = {};
+
+async function loadModelInfo() {
+  try {
+    const res = await fetch("/models");
+    const data = await res.json();
+    currentModel = data.active_model;
+    data.models.forEach(m => { models[m.key] = m; });
+    updateModelBadge();
+  } catch(e) { console.error(e); }
+}
+
+function updateModelBadge() {
+  const badge = document.getElementById("modelBadge");
+  const info = models[currentModel];
+  if (info) {
+    badge.innerHTML = `<span class="dot"></span> ${info.name} (${info.params})`;
+  }
+  const btn = document.getElementById("switchBtn");
+  const other = currentModel === "base" ? "large" : "base";
+  const otherInfo = models[other];
+  if (otherInfo && otherInfo.downloaded) {
+    btn.textContent = `Switch to ${otherInfo.name}`;
+    btn.style.display = "";
+  } else if (otherInfo && !otherInfo.downloaded) {
+    btn.textContent = `${otherInfo.name} (not downloaded)`;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+  } else {
+    btn.style.display = "none";
+  }
+}
+
+async function switchModel() {
+  const other = currentModel === "base" ? "large" : "base";
+  if (!models[other] || !models[other].downloaded) return;
+
+  const btn = document.getElementById("switchBtn");
+  btn.textContent = "Loading...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("/models/switch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: other })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      currentModel = data.active_model;
+      updateModelBadge();
+    } else {
+      alert(data.detail || "Failed to switch model");
+    }
+  } catch(e) {
+    alert("Error switching model: " + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+loadModelInfo();
 </script>
 </body>
 </html>
