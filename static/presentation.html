@@ -465,9 +465,12 @@
 
     <h3>Label Distribution</h3>
     <p>
-      ANLI R2 is perfectly balanced across all three classes (~33.3% each) in all splits.
-      No class weighting or oversampling needed — confirmed with a chi-squared test
-      (p > 0.99) showing train/dev/test distributions are consistent.
+      The dev and test sets are perfectly balanced (~33.3% each class), but the
+      training set is notably imbalanced: neutral dominates at 46.1%, followed by
+      entailment at 31.8%, with contradiction underrepresented at 22.1%. This imbalance
+      is a natural artifact of the adversarial collection — annotators found it easier to
+      write hypotheses that models misclassify as neutral. This is worth noting for training
+      strategies like class weighting or stratified sampling.
     </p>
     <div class="figure">
       <img src="/figures/label_distribution.png" alt="Label Distribution">
@@ -476,11 +479,13 @@
 
     <h3>Text Length &amp; Tokenization</h3>
     <p>
-      Premises are substantially longer than hypotheses (median ~110 vs ~15 words).
+      Premises are substantially longer than hypotheses (median 54 vs 9 words),
+      with a combined median of 64 words and 95th percentile at 80 words.
       Using the actual DeBERTa-v3 SentencePiece tokenizer, we found that
       95%+ of premise-hypothesis pairs fit within 256 subword tokens.
       This informed our <code>max_length=256</code> choice — saving ~50% memory
-      vs the default 512 with minimal truncation.
+      vs the default 512 with minimal truncation. Text lengths are also consistent
+      across all three classes, ruling out length as a discriminative feature.
     </p>
     <div class="figure">
       <img src="/figures/token_lengths.png" alt="Token Length Distribution">
@@ -501,18 +506,37 @@
     <h3>Linguistic Phenomena</h3>
     <p>
       We tagged hypotheses by reasoning type: negation, numerical,
-      quantifier, temporal, and comparative. This framework feeds directly into the error analysis
-      in Section 05.
+      quantifier, temporal, and comparative. <strong>Numerical reasoning is by far the most common</strong>,
+      appearing in ~29% of entailment and ~33% of contradiction hypotheses. Contradiction
+      hypotheses also show elevated negation rates (~14% vs ~7% for neutral), suggesting
+      annotators frequently used numerical comparisons and negation to construct adversarial examples.
+      This framework feeds directly into the error analysis in Section 05.
     </p>
     <div class="figure">
       <img src="/figures/linguistic_phenomena.png" alt="Linguistic Phenomena">
       <div class="figure-caption">Fig 4 — Distribution of linguistic phenomena across training hypotheses.</div>
     </div>
 
+    <h3>Feature Correlation</h3>
+    <p>
+      The correlation matrix confirms what the individual analyses suggest: <strong>no engineered
+      feature is meaningfully correlated with the label</strong>. The highest label correlation is
+      just 0.07 (negation), with Jaccard similarity at 0.05 and all others near zero. This is
+      the quantitative proof that ANLI R2's adversarial construction successfully neutralized
+      the surface-level shortcuts that plague earlier NLI datasets.
+    </p>
+    <div class="figure">
+      <img src="/figures/correlation_heatmap.png" alt="Feature Correlation Matrix">
+      <div class="figure-caption">Fig 5 — Feature correlation matrix. Label column shows near-zero correlation with all engineered features.</div>
+    </div>
+
     <div class="insight">
       <div class="insight-title">EDA Takeaways</div>
-      <p>Balanced classes &rarr; no sampling tricks. Lexical overlap uninformative &rarr; simple models will fail.
-         256 tokens covers 95%+ of data. Diverse reasoning types &rarr; expect varied failure modes.</p>
+      <p>Train set is imbalanced (neutral 46.1%, contradiction only 22.1%) — may hurt contradiction recall.
+         Premise median 54 words, hypothesis median 9 words; 256 tokens covers 95%+ with no per-class length bias.
+         Lexical overlap is uninformative across all classes &rarr; bag-of-words models will fail.
+         Numerical reasoning dominates (~30%), with contradiction hypotheses showing elevated negation (~14%).
+         No engineered feature correlates with the label above 0.07 &rarr; a powerful contextual model is required.</p>
     </div>
 
     <div class="footer-nav">
@@ -592,13 +616,13 @@
     <h3>Confusion Matrix</h3>
     <div class="figure">
       <img src="/figures/confusion_matrices.png" alt="Confusion Matrices">
-      <div class="figure-caption">Fig 5 — Confusion matrices for dev and test sets. Contradiction &rarr; Entailment is the dominant error.</div>
+      <div class="figure-caption">Fig 6 — Confusion matrices for dev and test sets. Contradiction &rarr; Entailment is the dominant error.</div>
     </div>
 
     <h3>Per-Class Metrics</h3>
     <div class="figure">
       <img src="/figures/per_class_metrics.png" alt="Per-Class Metrics">
-      <div class="figure-caption">Fig 6 — Precision, recall, and F1 per class. Contradiction has highest precision but lowest recall (50%).</div>
+      <div class="figure-caption">Fig 7 — Precision, recall, and F1 per class. Contradiction has highest precision but lowest recall (50%).</div>
     </div>
 
     <div class="insight">
@@ -624,7 +648,7 @@
     <h3>Error Rate by Phenomenon</h3>
     <div class="figure">
       <img src="/figures/error_analysis.png" alt="Error Analysis">
-      <div class="figure-caption">Fig 7 — Error rates by phenomenon (left) and misclassification flow (right).</div>
+      <div class="figure-caption">Fig 8 — Error rates by phenomenon (left) and misclassification flow (right).</div>
     </div>
 
     <table>
@@ -652,7 +676,7 @@
     <h3>Confidence Calibration</h3>
     <div class="figure">
       <img src="/figures/confidence_analysis.png" alt="Confidence Analysis">
-      <div class="figure-caption">Fig 8 — Confidence distributions: correct vs. incorrect. Nearly identical.</div>
+      <div class="figure-caption">Fig 9 — Confidence distributions: correct vs. incorrect. Nearly identical.</div>
     </div>
 
     <div class="metric-row" style="grid-template-columns: repeat(3, 1fr);">
