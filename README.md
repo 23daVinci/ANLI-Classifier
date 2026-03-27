@@ -6,13 +6,15 @@
 
 | Model | Params | Test Accuracy | Test Macro F1 |
 |-------|:---:|:---:|:---:|
-| Random Baseline | — | 33.3% | 0.333 |
-| TF-IDF + Logistic Regression | — | ~36% | ~0.36 |
-| BERT-base | 110M | ~46% | ~0.46 |
+| Random Uniform (50-seed avg) | — | 33.5% | 0.335 |
+| Majority Class (neutral) | — | 33.3% | 0.167 |
+| TF-IDF + LogReg (concat) | — | 35.0% | 0.335 |
+| LinearSVC (sep TF-IDF + NLI feats) | — | 42.5% | 0.421 |
+| BERT-base (fine-tuned) | 110M | 43.5% | 0.431 |
 | **DeBERTa-v3-base (MNLI+FEVER+ANLI)** | **86M** | **54.6%** | **0.546** |
-| **DeBERTa-v3-large (MNLI+FEVER+ANLI+LingNLI+WANLI)** | **304M** | **~58-62%** | **~0.58** |
+| **DeBERTa-v3-large (MNLI+FEVER+ANLI)** | **304M** | **68.2%** | **0.682** |
 
-> ANLI R2 is adversarially constructed — annotators wrote hypotheses specifically designed to fool transformer models. Both DeBERTa-v3 variants significantly outperform baselines, with the large model trained on 885K NLI pairs achieving the highest accuracy.
+> ANLI R2 is adversarially constructed — annotators wrote hypotheses specifically designed to fool transformer models. DeBERTa-v3-large achieves 68.2% accuracy, 34.9 points above random and 24.7 points above fine-tuned BERT-base.
 
 ## Project Structure
 
@@ -54,7 +56,7 @@ The model weights are not included in the repository due to size. Download them 
 # Download base model only (~360MB) — fast inference, 54.6% accuracy
 python download_model.py
 
-# Download large model only (~1.2GB) — higher accuracy (~58-62%)
+# Download large model only (~1.2GB) — higher accuracy (68.2%)
 python download_model.py --model large
 
 # Download both models
@@ -233,13 +235,15 @@ ANLI Round 2 (Nie et al., 2020) — 45,460 training / 1,000 dev / 1,000 test exa
 
 DeBERTa-v3 uses disentangled attention and replaced token detection (RTD) pre-training, giving it a structural advantage over MLM-based models like BERT and RoBERTa on adversarial NLI data.
 
-### Key Findings (Base Model)
+### Key Findings
 
-- **54.6% accuracy** on ANLI R2 test (21+ points above random baseline)
-- Contradiction is the hardest class (50.15% recall) — the model defaults to neutral when uncertain
-- 58.1% of errors are high-confidence (>0.9), indicating poor calibration on adversarial examples
+- **68.2% accuracy** with DeBERTa-v3-large on ANLI R2 test (34.9 points above random)
+- **54.6% accuracy** with DeBERTa-v3-base — scaling to large adds +13.6%
+- BERT-base fine-tuned reaches only 43.5%, barely above LinearSVC (42.5%) — ANLI was built to fool MLM models
+- Contradiction is the hardest class: recall of 50.2% (base) / 66.1% (large)
+- The dominant error pattern is contradiction → entailment (29.4% of true contradictions), where the model misses logical reversals
+- 58.1% of base model errors are high-confidence (>0.9), indicating poor calibration on adversarial examples
 - Quantifier reasoning has the highest error rate (50.9%), followed by surface-level reasoning (48.2%)
-- The dominant error pattern is contradiction → entailment (98 examples), where the model misses logical reversals
 
 ## Configuration
 
