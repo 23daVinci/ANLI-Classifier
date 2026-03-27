@@ -100,6 +100,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Serve figures as static files for the presentation
+figures_dir = Path(__file__).parent / "figures"
+if figures_dir.exists():
+    app.mount("/figures", StaticFiles(directory=str(figures_dir)), name="figures")
+
 
 # ---------------------------------------------------------------------------
 # Schemas
@@ -176,6 +181,15 @@ def root():
         "<p>API is running. Visit <a href='/docs'>/docs</a> for Swagger UI.</p>"
         "<p>Place static/index.html to enable the web UI.</p>"
     )
+
+
+@app.get("/presentation", response_class=HTMLResponse)
+def presentation():
+    """Serve the project presentation."""
+    html_path = Path(__file__).parent / "static" / "presentation.html"
+    if html_path.exists():
+        return html_path.read_text()
+    raise HTTPException(status_code=404, detail="Presentation not found")
 
 
 @app.get("/health", response_model=HealthResponse)
