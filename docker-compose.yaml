@@ -13,6 +13,7 @@ services:
     environment:
       - MODEL_DIR=/app/model
       - MAX_LENGTH=256
+      - HF_TOKEN=${HF_TOKEN:-}        # Hybrid routing — set in .env or shell
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
