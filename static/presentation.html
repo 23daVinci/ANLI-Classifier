@@ -98,9 +98,12 @@
   <div class="nav-section">Results</div>
   <a class="nav-link" onclick="goTo('model')"><span class="nav-num">04</span> DeBERTa-v3</a>
   <a class="nav-link" onclick="goTo('errors')"><span class="nav-num">05</span> Error Analysis</a>
+  <div class="nav-section">Hybrid</div>
+  <a class="nav-link" onclick="goTo('hybrid')"><span class="nav-num">06</span> Hybrid Routing</a>
   <div class="nav-section">Deployment</div>
-  <a class="nav-link" onclick="goTo('deploy')"><span class="nav-num">06</span> Architecture</a>
-  <a class="nav-link" onclick="goTo('future')"><span class="nav-num">07</span> Conclusions</a>
+  <a class="nav-link" onclick="goTo('hybrid')"><span class="nav-num">06</span> Hybrid Routing</a>
+  <a class="nav-link" onclick="goTo('deploy')"><span class="nav-num">07</span> Architecture</a>
+  <a class="nav-link" onclick="goTo('future')"><span class="nav-num">08</span> Conclusions</a>
   <div class="sidebar-spacer"></div>
   <div class="nav-demo"><a href="/" class="demo-btn">&#9654;&ensp;Live Demo</a></div>
 </div>
@@ -436,20 +439,153 @@
 
     <div class="footer-nav">
       <a class="footer-btn" onclick="goTo('model')">&larr; DeBERTa-v3</a>
+      <a class="footer-btn" onclick="goTo('hybrid')">Hybrid Routing &rarr;</a>
+    </div>
+  </div>
+
+  <!-- ===== 06 HYBRID ===== -->
+  <div class="section" id="hybrid">
+    <h2>Hybrid Routing</h2>
+    <p class="section-desc">
+      Confidence-based routing to a reasoning LLM for low-confidence predictions.
+      DeBERTa-v3-large + Qwen2.5-72B-Instruct via HuggingFace Inference API.
+    </p>
+
+    <h3>Motivation</h3>
+    <p>
+      The error analysis revealed two problems: DeBERTa makes overconfident errors (58% above 90%),
+      and it lacks world knowledge and complex reasoning. A reasoning LLM has complementary strengths
+      -- broad knowledge, chain-of-thought inference -- but is slower and less NLI-tuned.
+      The hybrid approach uses each model where it's strongest.
+    </p>
+
+    <h3>Architecture</h3>
+    <div class="kv-list">
+      <div class="kv"><span class="kv-key">Primary Model</span><span class="kv-val">DeBERTa-v3-large (304M, ~1.2s inference)</span></div>
+      <div class="kv"><span class="kv-key">Reasoning LLM</span><span class="kv-val">Qwen2.5-72B-Instruct via HF Inference API</span></div>
+      <div class="kv"><span class="kv-key">Routing Logic</span><span class="kv-val">If DeBERTa confidence &lt; threshold, route to LLM</span></div>
+      <div class="kv"><span class="kv-key">Fallback</span><span class="kv-val">On LLM failure, return DeBERTa prediction</span></div>
+    </div>
+
+    <h3>Calibration Advantage (Large vs Base)</h3>
+    <p>
+      The large model is significantly better calibrated than base, making confidence-based
+      routing more effective. The confidence gap between correct and incorrect predictions
+      is 3.4x wider in the large model.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Base</th><th>Large</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mean conf (correct)</td><td>0.883</td><td>0.951</td></tr>
+        <tr><td>Mean conf (errors)</td><td>0.867</td><td>0.897</td></tr>
+        <tr><td style="font-weight:600">Gap</td><td>0.016</td><td style="color:#059669;font-weight:600">0.054</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Results by Threshold</h3>
+    <table>
+      <thead>
+        <tr><th>Threshold</th><th>Routed</th><th>Routed %</th><th>Hybrid Acc</th><th>Delta</th><th>LLM Acc*</th><th>DeBERTa Acc*</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>&lt; 0.60</td><td>41</td><td>4.1%</td><td>68.7%</td><td>+0.5%</td><td>56.1%</td><td>43.9%</td></tr>
+        <tr><td>&lt; 0.70</td><td>77</td><td>7.7%</td><td>69.1%</td><td>+0.9%</td><td>57.1%</td><td>45.5%</td></tr>
+        <tr><td>&lt; 0.80</td><td>126</td><td>12.6%</td><td>70.4%</td><td>+2.2%</td><td>62.7%</td><td>45.2%</td></tr>
+        <tr><td>&lt; 0.90</td><td>192</td><td>19.2%</td><td>71.2%</td><td>+3.0%</td><td>64.1%</td><td>48.4%</td></tr>
+        <tr class="highlight"><td>&lt; 0.95</td><td>275</td><td>27.5%</td><td>72.1%</td><td>+3.9%</td><td>65.5%</td><td>51.3%</td></tr>
+      </tbody>
+    </table>
+    <p style="color:#999;font-size:.80rem;margin-top:4px">
+      * LLM Acc / DeBERTa Acc = accuracy on the routed subset only.
+    </p>
+
+    <div class="metric-row">
+      <div class="metric-card">
+        <div class="metric-value blue">72.1%</div>
+        <div class="metric-label">Hybrid Accuracy</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value green">+3.9%</div>
+        <div class="metric-label">Over DeBERTa Alone</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value gray">27.5%</div>
+        <div class="metric-label">Routed to LLM</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value green">65.5%</div>
+        <div class="metric-label">LLM Acc on Routed</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">Key Result</div>
+      <p>At threshold 0.95, the hybrid system routes 27.5% of predictions to the LLM and achieves
+         72.1% accuracy -- a +3.9% improvement over DeBERTa-v3-large alone. The LLM consistently
+         outperforms DeBERTa on routed examples (65.5% vs 51.3%), validating the complementary strengths hypothesis.</p>
+    </div>
+
+    <h3>Where Hybrid Helps vs Hurts</h3>
+    <p>
+      The routing is not perfect. The LLM corrects many DeBERTa errors but also
+      occasionally overrides correct predictions. The net gain comes from the LLM
+      being substantially better than DeBERTa on the uncertain subset.
+    </p>
+
+    <h3>Limitations of Hybrid Routing</h3>
+    <p>
+      The approach has three key limitations, each illustrated by real test cases:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Limitation</th><th>Example</th><th>What Happens</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600">Overconfident errors</td>
+          <td>"Muccan Station is on the radio" (true: C)</td>
+          <td>DeBERTa says neutral at 99.9% -- never routed</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">LLM also wrong</td>
+          <td>"Born south of Dallas" (true: E)</td>
+          <td>Both models lack geographic reasoning</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Latency cost</td>
+          <td>Any routed example</td>
+          <td>+3-8s per prediction via API</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight warning">
+      <div class="insight-title">Honest Assessment</div>
+      <p>58% of DeBERTa's errors are above 90% confidence and never get routed.
+         The hybrid approach improves accuracy on the uncertain tail but cannot fix
+         the fundamental calibration problem. Temperature scaling or ensemble methods
+         would be needed to address overconfident errors.</p>
+    </div>
+
+    <div class="footer-nav">
+      <a class="footer-btn" onclick="goTo('errors')">&larr; Error Analysis</a>
       <a class="footer-btn" onclick="goTo('deploy')">Architecture &rarr;</a>
     </div>
   </div>
 
-  <!-- ===== 06 DEPLOY ===== -->
+  <!-- ===== 07 DEPLOY ===== -->
   <div class="section" id="deploy">
     <h2>Deployment Architecture</h2>
-    <p class="section-desc">Containerized inference API with interactive web UI.</p>
+    <p class="section-desc">Containerized inference API with hybrid routing and interactive web UI.</p>
 
     <div class="kv-list">
       <div class="kv"><span class="kv-key">Framework</span><span class="kv-val">FastAPI + Uvicorn</span></div>
-      <div class="kv"><span class="kv-key">Container</span><span class="kv-val">Docker (python:3.10-slim) &middot; CPU-only PyTorch</span></div>
-      <div class="kv"><span class="kv-key">Model Loading</span><span class="kv-val">Volume-mounted at runtime — image stays small</span></div>
-      <div class="kv"><span class="kv-key">Inference</span><span class="kv-val">~380–470ms per prediction (CPU)</span></div>
+      <div class="kv"><span class="kv-key">Container</span><span class="kv-val">Docker (python:3.10-slim), CPU-only PyTorch</span></div>
+      <div class="kv"><span class="kv-key">Model Loading</span><span class="kv-val">Volume-mounted at runtime -- image stays small</span></div>
+      <div class="kv"><span class="kv-key">Model Switching</span><span class="kv-val">Live switch between base/large without restart</span></div>
+      <div class="kv"><span class="kv-key">Hybrid Routing</span><span class="kv-val">Optional LLM routing via HF Inference API (Qwen-72B)</span></div>
       <div class="kv"><span class="kv-key">Health Check</span><span class="kv-val">Docker HEALTHCHECK + <code>/health</code> endpoint</span></div>
     </div>
 
@@ -457,11 +593,13 @@
     <table>
       <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td><code>GET</code></td><td><code>/</code></td><td>Web UI — interactive classifier</td></tr>
-        <tr><td><code>GET</code></td><td><code>/health</code></td><td>Health check</td></tr>
-        <tr><td><code>GET</code></td><td><code>/docs</code></td><td>Swagger UI — auto-generated API docs</td></tr>
-        <tr><td><code>POST</code></td><td><code>/predict</code></td><td>Single classification</td></tr>
+        <tr><td><code>GET</code></td><td><code>/</code></td><td>Web UI with hybrid toggle and threshold slider</td></tr>
+        <tr><td><code>GET</code></td><td><code>/health</code></td><td>Health check (includes hybrid availability)</td></tr>
+        <tr><td><code>GET</code></td><td><code>/models</code></td><td>List available models and active model</td></tr>
+        <tr><td><code>GET</code></td><td><code>/docs</code></td><td>Swagger UI</td></tr>
+        <tr><td><code>POST</code></td><td><code>/predict</code></td><td>Classification (with optional hybrid routing)</td></tr>
         <tr><td><code>POST</code></td><td><code>/predict/batch</code></td><td>Batch classification (up to 64)</td></tr>
+        <tr><td><code>POST</code></td><td><code>/models/switch</code></td><td>Switch active model (base/large)</td></tr>
       </tbody>
     </table>
 
@@ -474,40 +612,41 @@
     </div>
 
     <div class="footer-nav">
-      <a class="footer-btn" onclick="goTo('errors')">&larr; Error Analysis</a>
+      <a class="footer-btn" onclick="goTo('hybrid')">&larr; Hybrid Routing</a>
       <a class="footer-btn" onclick="goTo('future')">Conclusions &rarr;</a>
     </div>
   </div>
 
-  <!-- ===== 07 FUTURE ===== -->
+  <!-- ===== 08 FUTURE ===== -->
   <div class="section" id="future">
     <h2>Conclusions &amp; Future Work</h2>
     <p class="section-desc">Summary of findings and directions for improvement.</p>
 
     <h3>What We Achieved</h3>
     <ul>
-      <li>End-to-end ML pipeline: EDA &rarr; baselines &rarr; model evaluation &rarr; Docker deployment</li>
-      <li>68.2% test accuracy with DeBERTa-v3-large — 34.9 points above random</li>
-      <li>Scaling study: random (33%) &rarr; TF-IDF (42.5%) &rarr; BERT (43.5%) &rarr; DeBERTa base (54.6%) &rarr; large (68.2%)</li>
+      <li>End-to-end ML pipeline: EDA, baselines, model evaluation, error analysis, hybrid routing, Docker deployment</li>
+      <li>72.1% test accuracy with hybrid routing (DeBERTa-v3-large + Qwen-72B) -- 38.8 points above random</li>
+      <li>Scaling study: random (33%) to TF-IDF (42.5%) to BERT (43.5%) to DeBERTa base (54.6%) to large (68.2%) to hybrid (72.1%)</li>
       <li>Deep error analysis across 6 linguistic phenomena with confidence calibration study</li>
-      <li>Production-ready Docker deployment with REST API and interactive web UI</li>
+      <li>Novel hybrid routing system with configurable threshold and chain-of-thought reasoning display</li>
+      <li>Production-ready Docker deployment with REST API, model switching, and interactive web UI</li>
     </ul>
 
     <h3>Limitations</h3>
     <ul>
-      <li>68.2% remains below human performance (~86%) — an 18-point gap</li>
-      <li>Confidence poorly calibrated: 58% of errors exceed 90% confidence</li>
-      <li>Contradiction recall (66.1% large, 50.2% base) still trails other classes</li>
-      <li>Requires world knowledge and geographic reasoning the model lacks</li>
+      <li>72.1% remains below human performance (~86%) -- a 14-point gap</li>
+      <li>58% of DeBERTa errors are overconfident (&gt;90%) and bypass routing</li>
+      <li>LLM routing adds 3-8s latency per routed prediction</li>
+      <li>Both models fail on word-sense disambiguation and some geographic reasoning</li>
     </ul>
 
     <h3>Future Directions</h3>
     <ul>
-      <li><strong>Confidence calibration</strong> — temperature scaling for reliable probabilities</li>
-      <li><strong>Seed ensemble</strong> — average 3–5 DeBERTa-v3-large for +1–2%</li>
-      <li><strong>Targeted augmentation</strong> — LLM-generated quantifier/numerical examples</li>
-      <li><strong>Hybrid reasoning</strong> — symbolic module for quantifiers and arithmetic</li>
-      <li><strong>Large model deployment</strong> — GPU inference or distillation for production</li>
+      <li><strong>Confidence calibration</strong> -- temperature scaling to make more errors routable</li>
+      <li><strong>Seed ensemble</strong> -- average 3-5 DeBERTa-v3-large for +1-2%</li>
+      <li><strong>Smarter routing</strong> -- train a meta-classifier to decide when to route (beyond just confidence)</li>
+      <li><strong>Targeted augmentation</strong> -- LLM-generated quantifier/numerical examples for fine-tuning</li>
+      <li><strong>Local LLM deployment</strong> -- distilled reasoning model for lower latency</li>
     </ul>
 
     <h3>References</h3>
@@ -532,7 +671,7 @@
 <div class="kbd-hint">Navigate: <kbd>&larr;</kbd> <kbd>&rarr;</kbd></div>
 
 <script>
-const sections=['intro','eda','baselines','model','errors','deploy','future'];
+const sections=['intro','eda','baselines','model','errors','hybrid','deploy','future'];
 function goTo(id){
   sections.forEach(s=>document.getElementById(s).classList.remove('active'));
   document.getElementById(id).classList.add('active');

@@ -21,7 +21,6 @@
 
   .container { width: 100%; max-width: 680px; }
 
-  /* Header */
   .header { margin-bottom: 36px; }
 
   h1 {
@@ -54,16 +53,11 @@
 
   .badge.accent { background: #eef2ff; color: #4361ee; border-color: #c7d2fe; }
 
-  .badge a {
-    color: inherit;
-    text-decoration: none;
-  }
-
+  .badge a { color: inherit; text-decoration: none; }
   .badge a:hover { text-decoration: underline; }
 
   .dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
 
-  /* Form */
   label {
     display: block;
     font-size: 0.78rem;
@@ -99,7 +93,6 @@
 
   .input-group { margin-bottom: 18px; }
 
-  /* Examples */
   .examples-label {
     font-size: 0.78rem;
     color: #999;
@@ -134,6 +127,141 @@
     transform: translateY(-1px);
   }
 
+  /* Hybrid toggle */
+  .options-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toggle-label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toggle-label .info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #888;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: help;
+  }
+
+  .switch {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .switch input { opacity: 0; width: 0; height: 0; }
+
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: #d4d4d8;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .switch input:checked + .slider { background: #4361ee; }
+  .switch input:checked + .slider::before { transform: translateX(16px); }
+
+  .hybrid-status {
+    font-size: 0.72rem;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .hybrid-status.active { color: #4361ee; }
+  .hybrid-status.unavailable { color: #dc2626; }
+
+  .threshold-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .threshold-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #888;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 0;
+  }
+
+  #thresholdSlider {
+    width: 100px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e0e2e7;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  #thresholdSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4361ee;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(67,97,238,0.3);
+  }
+
+  #thresholdSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4361ee;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(67,97,238,0.3);
+  }
+
+  .threshold-value {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4361ee;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 36px;
+  }
+
   /* Predict button */
   .predict-btn {
     width: 100%;
@@ -154,7 +282,6 @@
   .predict-btn:active { transform: translateY(0); }
   .predict-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  /* Spinner */
   .spinner {
     display: none;
     margin: 28px auto;
@@ -216,7 +343,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Probability bars */
   .bar-group { margin-bottom: 14px; }
 
   .bar-header {
@@ -247,6 +373,120 @@
   .bar-fill.neutral        { background: linear-gradient(90deg, #d4d4d8, #a1a1aa); }
   .bar-fill.contradiction  { background: linear-gradient(90deg, #fca5a5, #dc2626); }
 
+  /* Routing badge */
+  .routing-info {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f0f3ff;
+    border: 1.5px solid #c7d2fe;
+    font-size: 0.82rem;
+    color: #4338ca;
+  }
+
+  .routing-info.visible { display: block; }
+
+  .routing-info .routing-header {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .routing-info .routing-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+    font-size: 0.80rem;
+  }
+
+  .routing-stat-card {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #e0e2e7;
+  }
+
+  .routing-stat-card.deberta { border-left: 3px solid #f59e0b; }
+  .routing-stat-card.llm { border-left: 3px solid #4361ee; }
+
+  .routing-stat-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #999;
+    margin-bottom: 3px;
+  }
+
+  .routing-stat-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .routing-stat-value .label-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .label-tag.entailment { background: #d1fae5; color: #059669; }
+  .label-tag.neutral { background: #f0f1f3; color: #71717a; }
+  .label-tag.contradiction { background: #fee2e2; color: #dc2626; }
+
+  .routing-stat-detail {
+    font-size: 0.72rem;
+    color: #aaa;
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .routing-info .reasoning-text {
+    font-size: 0.80rem;
+    color: #555;
+    line-height: 1.6;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .routing-info .reasoning-text.expanded {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .toggle-reasoning {
+    background: none;
+    border: none;
+    color: #4361ee;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+  }
+
+  .toggle-reasoning:hover { text-decoration: underline; }
+
+  .high-conf-info {
+    display: none;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #f8faf8;
+    border: 1.5px solid #d1e7d1;
+    font-size: 0.80rem;
+    color: #166534;
+  }
+
+  .high-conf-info.visible { display: block; }
+
   .inference-time {
     text-align: right;
     font-size: 0.75rem;
@@ -255,7 +495,6 @@
     font-family: 'JetBrains Mono', monospace;
   }
 
-  /* Error */
   .error-msg {
     display: none;
     margin-top: 16px;
@@ -269,7 +508,6 @@
 
   .error-msg.visible { display: block; }
 
-  /* Footer */
   .footer {
     margin-top: 48px;
     text-align: center;
@@ -280,7 +518,6 @@
   .footer a { color: #4361ee; text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
-  /* Keyboard hint */
   kbd {
     display: inline-block;
     padding: 1px 5px;
@@ -291,6 +528,29 @@
     border: 1px solid #e0e2e7;
     border-radius: 4px;
   }
+
+  /* Tooltip */
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-wrap .tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    background: #1a1a2e;
+    color: #e5e7eb;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.5;
+    z-index: 10;
+    transition: opacity 0.15s;
+    pointer-events: none;
+  }
+  .tooltip-wrap:hover .tooltip-text { visibility: visible; opacity: 1; }
 </style>
 </head>
 <body>
@@ -314,6 +574,30 @@
   <div class="input-group">
     <label for="hypothesis">Hypothesis</label>
     <textarea id="hypothesis" rows="2" placeholder="A claim to classify against the premise..."></textarea>
+  </div>
+
+  <div class="options-row">
+    <div class="toggle-wrap">
+      <label class="switch">
+        <input type="checkbox" id="hybridToggle" onchange="onHybridToggle()">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label" onclick="document.getElementById('hybridToggle').click()">
+        Hybrid mode
+        <span class="tooltip-wrap">
+          <span class="info-icon">?</span>
+          <span class="tooltip-text">
+            When DeBERTa's confidence is below the threshold, the prediction is routed to a reasoning LLM (Qwen-72B) for a second opinion. Set to 100% to always route.
+          </span>
+        </span>
+      </span>
+    </div>
+    <div class="threshold-wrap" id="thresholdWrap" style="display:none;">
+      <label class="threshold-label" for="thresholdSlider">Threshold:</label>
+      <input type="range" id="thresholdSlider" min="50" max="100" value="90" step="5" oninput="updateThresholdDisplay()">
+      <span class="threshold-value" id="thresholdValue">90%</span>
+    </div>
+    <span class="hybrid-status" id="hybridStatus"></span>
   </div>
 
   <p class="examples-label">Try an example:</p>
@@ -356,11 +640,22 @@
       <div class="bar-track"><div class="bar-fill contradiction" id="barC"></div></div>
     </div>
 
+    <div class="routing-info" id="routingInfo">
+      <div class="routing-header">
+        &#x1F916; Hybrid Routing - LLM Override
+        <button class="toggle-reasoning" id="toggleReasoning" onclick="toggleReasoning()">Show reasoning</button>
+      </div>
+      <div class="routing-stats" id="routingStats"></div>
+      <div class="reasoning-text" id="reasoningText"></div>
+    </div>
+
+    <div class="high-conf-info" id="highConfInfo"></div>
+
     <div class="inference-time" id="timing"></div>
   </div>
 
   <div class="footer">
-    Adversarial NLI Round 2 &middot; 54.6% test accuracy &middot;
+    Adversarial NLI Round 2 &middot; DeBERTa-v3 + hybrid LLM routing &middot;
     <a href="/presentation">View full project presentation</a>
   </div>
 </div>
@@ -387,21 +682,46 @@ EXAMPLES.forEach(ex => {
   exDiv.appendChild(btn);
 });
 
+function toggleReasoning() {
+  const el = document.getElementById("reasoningText");
+  const btn = document.getElementById("toggleReasoning");
+  el.classList.toggle("expanded");
+  btn.textContent = el.classList.contains("expanded") ? "Hide reasoning" : "Show reasoning";
+}
+
+function onHybridToggle() {
+  const on = document.getElementById("hybridToggle").checked;
+  document.getElementById("thresholdWrap").style.display = on ? "flex" : "none";
+}
+
+function updateThresholdDisplay() {
+  const val = document.getElementById("thresholdSlider").value;
+  document.getElementById("thresholdValue").textContent = val + "%";
+}
+
 async function predict() {
   const premise = document.getElementById("premise").value.trim();
   const hypothesis = document.getElementById("hypothesis").value.trim();
   if (!premise || !hypothesis) return;
 
+  const hybrid = document.getElementById("hybridToggle").checked;
+  const threshold = hybrid ? parseInt(document.getElementById("thresholdSlider").value) / 100 : null;
+
   document.getElementById("predictBtn").disabled = true;
   document.getElementById("spinner").classList.add("active");
   document.getElementById("result").classList.remove("visible");
   document.getElementById("error").classList.remove("visible");
+  document.getElementById("routingInfo").classList.remove("visible");
+  document.getElementById("reasoningText").classList.remove("expanded");
+  const hci = document.getElementById("highConfInfo");
+  hci.classList.remove("visible");
+  hci.textContent = "";
 
   try {
     const res = await fetch("/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ premise, hypothesis })
+      body: JSON.stringify({ premise, hypothesis, hybrid, confidence_threshold: threshold })
     });
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
     const data = await res.json();
@@ -421,7 +741,38 @@ async function predict() {
     document.getElementById("valN").textContent = (p.neutral * 100).toFixed(1) + "%";
     document.getElementById("valC").textContent = (p.contradiction * 100).toFixed(1) + "%";
 
-    document.getElementById("timing").textContent = data.inference_time_ms.toFixed(0) + "ms";
+    // Routing info
+    if (data.routed_to_llm) {
+      document.getElementById("routingInfo").classList.add("visible");
+
+      const changed = data.deberta_label !== data.llm_label;
+      const statsHtml = `
+        <div class="routing-stat-card deberta">
+          <div class="routing-stat-label">DeBERTa-v3 (${data.model})</div>
+          <div class="routing-stat-value"><span class="label-tag ${data.deberta_label}">${data.deberta_label}</span></div>
+          <div class="routing-stat-detail">${(data.confidence * 100).toFixed(1)}% conf, ${data.deberta_time_ms.toFixed(0)}ms</div>
+        </div>
+        <div class="routing-stat-card llm">
+          <div class="routing-stat-label">LLM (${data.llm_model.split('/').pop()})</div>
+          <div class="routing-stat-value"><span class="label-tag ${data.llm_label}">${data.llm_label}</span> ${changed ? '<span style="font-size:0.72rem;color:#4361ee;">&#x2713; override</span>' : '<span style="font-size:0.72rem;color:#999;">= agreed</span>'}</div>
+          <div class="routing-stat-detail">${data.llm_time_ms.toFixed(0)}ms, threshold &lt; ${(data.confidence_threshold * 100).toFixed(0)}%</div>
+        </div>
+      `;
+      document.getElementById("routingStats").innerHTML = statsHtml;
+
+      const reasonText = data.llm_reasoning || "";
+      document.getElementById("reasoningText").textContent = reasonText;
+      document.getElementById("toggleReasoning").textContent = "Show reasoning";
+    } else if (hybrid) {
+      const hci = document.getElementById("highConfInfo");
+      hci.classList.add("visible");
+      hci.textContent = 'DeBERTa confidence ' + (data.confidence * 100).toFixed(1) + '% >= ' + (data.confidence_threshold * 100).toFixed(0) + '% threshold -- no LLM needed (' + (data.deberta_time_ms || data.inference_time_ms).toFixed(0) + 'ms)';
+    }
+
+    const timingParts = [data.inference_time_ms.toFixed(0) + "ms"];
+    if (data.routed_to_llm) timingParts.push("(routed to " + data.llm_model + ")");
+    else if (hybrid) timingParts.push("(high confidence — DeBERTa only)");
+    document.getElementById("timing").textContent = timingParts.join(" ");
 
     document.getElementById("result").classList.add("visible");
   } catch (err) {
@@ -441,14 +792,17 @@ document.addEventListener("keydown", e => {
 // Model state
 let currentModel = null;
 let models = {};
+let hybridAvailable = false;
 
 async function loadModelInfo() {
   try {
     const res = await fetch("/models");
     const data = await res.json();
     currentModel = data.active_model;
+    hybridAvailable = data.hybrid_available;
     data.models.forEach(m => { models[m.key] = m; });
     updateModelBadge();
+    updateHybridStatus();
   } catch(e) { console.error(e); }
 }
 
@@ -470,6 +824,21 @@ function updateModelBadge() {
     btn.style.cursor = "not-allowed";
   } else {
     btn.style.display = "none";
+  }
+}
+
+function updateHybridStatus() {
+  const status = document.getElementById("hybridStatus");
+  const toggle = document.getElementById("hybridToggle");
+  if (hybridAvailable) {
+    status.textContent = "LLM available";
+    status.className = "hybrid-status active";
+    toggle.disabled = false;
+  } else {
+    status.textContent = "LLM not configured";
+    status.className = "hybrid-status unavailable";
+    toggle.disabled = true;
+    toggle.checked = false;
   }
 }
 
