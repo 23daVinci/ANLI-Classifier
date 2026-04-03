@@ -20,9 +20,12 @@ Endpoints:
 
 import os
 import re
+import json
 import time
+import uuid
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 import torch
@@ -43,6 +46,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 HF_TOKEN = os.getenv("HF_TOKEN", None)
 LLM_MODEL = os.getenv("LLM_MODEL", "Qwen/Qwen2.5-72B-Instruct")
 DEFAULT_CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.90"))
+FEEDBACK_FILE = os.getenv("FEEDBACK_FILE", "feedback.json")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -158,6 +162,34 @@ def init_llm_client():
     except Exception as e:
         logger.warning(f"Failed to init LLM client: {e} — hybrid routing disabled.")
         llm_client = None
+
+
+# ---------------------------------------------------------------------------
+# Feedback storage
+# ---------------------------------------------------------------------------
+def load_feedback() -> list[dict]:
+    """Load feedback entries from JSON file."""
+    if os.path.isfile(FEEDBACK_FILE):
+        try:
+            with open(FEEDBACK_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return []
+    return []
+
+
+def save_feedback(entries: list[dict]):
+    """Save feedback entries to JSON file."""
+    with open(FEEDBACK_FILE, "w") as f:
+        json.dump(entries, f, indent=2, default=str)
+
+
+def append_feedback(entry: dict):
+    """Append a single feedback entry and persist."""
+    entries = load_feedback()
+    entries.append(entry)
+    save_feedback(entries)
+    logger.info(f"Feedback saved: id={entry['id']} correct={entry['is_correct']}")
 
 
 # ---------------------------------------------------------------------------
@@ -333,6 +365,32 @@ class SwitchResponse(BaseModel):
     load_time_seconds: float
 
 
+class FeedbackRequest(BaseModel):
+    premise: str = Field(..., min_length=1)
+    hypothesis: str = Field(..., min_length=1)
+    predicted_label: str = Field(..., description="The label the system predicted")
+    is_correct: bool = Field(..., description="Whether the prediction was correct")
+    correct_label: str | None = Field(None, description="User-provided correct label (if is_correct=False)")
+    confidence: float | None = Field(None, description="Model confidence for the prediction")
+    model: str | None = Field(None, description="Which model made the prediction")
+    routed_to_llm: bool = Field(False, description="Whether hybrid routing was used")
+    llm_label: str | None = Field(None, description="LLM's prediction, if routed")
+
+class FeedbackResponse(BaseModel):
+    message: str
+    feedback_id: str
+
+class FeedbackStatsResponse(BaseModel):
+    total: int
+    correct: int
+    incorrect: int
+    accuracy: float | None
+    corrections_by_label: dict
+    corrections_by_model: dict
+    avg_confidence_correct: float | None
+    avg_confidence_incorrect: float | None
+
+
 # ---------------------------------------------------------------------------
 # Inference
 # ---------------------------------------------------------------------------
@@ -375,7 +433,9 @@ def predict_single(
     llm_label_str = None
     llm_ms = 0.0
 
-    if hybrid and llm_client is not None and confidence < threshold:
+    should_route = confidence < threshold or threshold >= 1.0
+
+    if hybrid and llm_client is not None and should_route:
         try:
             llm_label, reasoning, llm_ms = llm_classify(premise, hypothesis)
             routed = True
@@ -501,6 +561,7 @@ def switch_model(request: SwitchRequest):
 def predict(request: PredictionRequest):
     if model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
+    logger.info(f"Predict request: hybrid={request.hybrid}, threshold={request.confidence_threshold}")
     return predict_single(
         request.premise,
         request.hypothesis,
@@ -531,3 +592,92 @@ def predict_batch(request: BatchRequest):
         total_inference_time_ms=round(total_ms, 2),
         model=active_model_key,
     )
+
+
+# ---------------------------------------------------------------------------
+# Feedback endpoints
+# ---------------------------------------------------------------------------
+@app.post("/feedback", response_model=FeedbackResponse)
+def submit_feedback(request: FeedbackRequest):
+    """Submit user feedback on a prediction (correct/incorrect + optional correction)."""
+    if request.correct_label and request.correct_label not in LABEL_NAMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid correct_label '{request.correct_label}'. Must be one of: {LABEL_NAMES}"
+        )
+
+    entry = {
+        "id": str(uuid.uuid4())[:8],
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "premise": request.premise,
+        "hypothesis": request.hypothesis,
+        "predicted_label": request.predicted_label,
+        "is_correct": request.is_correct,
+        "correct_label": request.correct_label,
+        "confidence": request.confidence,
+        "model": request.model,
+        "routed_to_llm": request.routed_to_llm,
+        "llm_label": request.llm_label,
+    }
+
+    append_feedback(entry)
+
+    return FeedbackResponse(
+        message="Thank you! Feedback recorded." if request.is_correct
+                else f"Feedback recorded. Correct label: {request.correct_label or 'not provided'}.",
+        feedback_id=entry["id"],
+    )
+
+
+@app.get("/feedback/stats", response_model=FeedbackStatsResponse)
+def feedback_stats():
+    """Get summary statistics of collected feedback."""
+    entries = load_feedback()
+
+    if not entries:
+        return FeedbackStatsResponse(
+            total=0, correct=0, incorrect=0, accuracy=None,
+            corrections_by_label={}, corrections_by_model={},
+            avg_confidence_correct=None, avg_confidence_incorrect=None,
+        )
+
+    correct = [e for e in entries if e.get("is_correct")]
+    incorrect = [e for e in entries if not e.get("is_correct")]
+
+    # Count corrections by true label
+    corrections_by_label = {}
+    for e in incorrect:
+        cl = e.get("correct_label", "unknown") or "not_provided"
+        corrections_by_label[cl] = corrections_by_label.get(cl, 0) + 1
+
+    # Count corrections by model
+    corrections_by_model = {}
+    for e in incorrect:
+        m = e.get("model", "unknown") or "unknown"
+        corrections_by_model[m] = corrections_by_model.get(m, 0) + 1
+
+    # Average confidence
+    correct_confs = [e["confidence"] for e in correct if e.get("confidence") is not None]
+    incorrect_confs = [e["confidence"] for e in incorrect if e.get("confidence") is not None]
+
+    return FeedbackStatsResponse(
+        total=len(entries),
+        correct=len(correct),
+        incorrect=len(incorrect),
+        accuracy=round(len(correct) / len(entries), 4) if entries else None,
+        corrections_by_label=corrections_by_label,
+        corrections_by_model=corrections_by_model,
+        avg_confidence_correct=round(sum(correct_confs) / len(correct_confs), 4) if correct_confs else None,
+        avg_confidence_incorrect=round(sum(incorrect_confs) / len(incorrect_confs), 4) if incorrect_confs else None,
+    )
+
+
+@app.get("/feedback/export")
+def export_feedback():
+    """Export all feedback as JSON (for training data or analysis)."""
+    entries = load_feedback()
+    return {
+        "count": len(entries),
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "entries": entries,
+    }

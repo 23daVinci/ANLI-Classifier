@@ -58,6 +58,98 @@
 
   .dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
 
+  /* Model selector */
+  .model-selector {
+    margin-bottom: 22px;
+    padding: 14px 16px;
+    border: 1.5px solid #eef0f2;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .model-selector-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .model-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .model-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1.5px solid #e0e2e7;
+    border-radius: 10px;
+    background: #fafbfc;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .model-opt:hover { border-color: #c7d2fe; background: #f8f9ff; }
+  .model-opt.active { border-color: #4361ee; background: #f0f3ff; }
+  .model-opt.loading { opacity: 0.6; cursor: wait; }
+  .model-opt.unavailable { opacity: 0.4; cursor: not-allowed; }
+
+  .model-opt-radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #d4d4d8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s;
+  }
+
+  .model-opt.active .model-opt-radio { border-color: #4361ee; }
+  .model-opt.active .model-opt-radio::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4361ee;
+  }
+
+  .model-opt-info { flex: 1; }
+
+  .model-opt-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .model-opt.active .model-opt-name { color: #4361ee; }
+
+  .model-opt-desc {
+    font-size: 0.70rem;
+    color: #999;
+    margin-top: 1px;
+  }
+
+  .model-opt-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 100px;
+    background: #f0f1f3;
+    color: #888;
+  }
+
+  .model-opt.active .model-opt-tag { background: #e0e7ff; color: #4361ee; }
+
   label {
     display: block;
     font-size: 0.78rem;
@@ -487,6 +579,90 @@
 
   .high-conf-info.visible { display: block; }
 
+  /* Feedback */
+  .feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f0f1f3;
+  }
+
+  .feedback-label {
+    font-size: 0.80rem;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .fb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border: 1.5px solid #e0e2e7;
+    border-radius: 100px;
+    background: #fff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #777;
+  }
+
+  .fb-btn:hover { transform: translateY(-1px); }
+  .fb-btn.correct:hover { border-color: #059669; color: #059669; background: #f0fdf4; }
+  .fb-btn.incorrect:hover { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
+  .fb-btn.selected-correct { border-color: #059669; color: #059669; background: #f0fdf4; }
+  .fb-btn.selected-incorrect { border-color: #dc2626; color: #dc2626; background: #fef2f2; }
+  .fb-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .correction-row {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .correction-row.visible { display: flex; }
+
+  .correction-label {
+    font-size: 0.78rem;
+    color: #999;
+    font-weight: 500;
+  }
+
+  .correction-btn {
+    padding: 4px 12px;
+    border: 1.5px solid #e0e2e7;
+    border-radius: 100px;
+    background: #fff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .correction-btn:hover { transform: translateY(-1px); }
+  .correction-btn.entailment { color: #059669; }
+  .correction-btn.entailment:hover, .correction-btn.entailment.selected { border-color: #059669; background: #f0fdf4; }
+  .correction-btn.neutral { color: #71717a; }
+  .correction-btn.neutral:hover, .correction-btn.neutral.selected { border-color: #71717a; background: #f5f5f5; }
+  .correction-btn.contradiction { color: #dc2626; }
+  .correction-btn.contradiction:hover, .correction-btn.contradiction.selected { border-color: #dc2626; background: #fef2f2; }
+
+  .feedback-thanks {
+    display: none;
+    font-size: 0.80rem;
+    color: #059669;
+    font-weight: 500;
+    margin-top: 10px;
+  }
+
+  .feedback-thanks.visible { display: block; }
+
   .inference-time {
     text-align: right;
     font-size: 0.75rem;
@@ -560,10 +736,15 @@
     <div class="badge-row">
       <span class="badge" id="modelBadge"><span class="dot"></span> loading...</span>
       <span class="badge">ANLI Round 2</span>
-      <button class="badge accent" id="switchBtn" onclick="switchModel()" style="cursor:pointer;font-family:inherit;">Switch model</button>
       <span class="badge accent"><a href="/presentation">Presentation</a></span>
       <span class="badge accent"><a href="/docs" target="_blank">API Docs</a></span>
     </div>
+  </div>
+
+  <!-- Model Selector -->
+  <div class="model-selector" id="modelSelector">
+    <label class="model-selector-label">Model</label>
+    <div class="model-options" id="modelOptions"></div>
   </div>
 
   <div class="input-group">
@@ -576,28 +757,18 @@
     <textarea id="hypothesis" rows="2" placeholder="A claim to classify against the premise..."></textarea>
   </div>
 
-  <div class="options-row">
-    <div class="toggle-wrap">
-      <label class="switch">
-        <input type="checkbox" id="hybridToggle" onchange="onHybridToggle()">
-        <span class="slider"></span>
-      </label>
-      <span class="toggle-label" onclick="document.getElementById('hybridToggle').click()">
-        Hybrid mode
-        <span class="tooltip-wrap">
-          <span class="info-icon">?</span>
-          <span class="tooltip-text">
-            When DeBERTa's confidence is below the threshold, the prediction is routed to a reasoning LLM (Qwen-72B) for a second opinion. Set to 100% to always route.
-          </span>
+  <div class="options-row" id="thresholdRow" style="display:none;">
+    <div class="threshold-wrap">
+      <label class="threshold-label" for="thresholdSlider">Routing threshold:</label>
+      <input type="range" id="thresholdSlider" min="50" max="100" value="90" step="5" oninput="updateThresholdDisplay()">
+      <span class="threshold-value" id="thresholdValue">90%</span>
+      <span class="tooltip-wrap">
+        <span class="info-icon" style="font-size:0.65rem;width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:#888;display:inline-flex;align-items:center;justify-content:center;font-weight:700;cursor:help;">?</span>
+        <span class="tooltip-text">
+          When DeBERTa's confidence is below this threshold, the prediction is routed to the LLM. Set to 100% to always use the LLM.
         </span>
       </span>
     </div>
-    <div class="threshold-wrap" id="thresholdWrap" style="display:none;">
-      <label class="threshold-label" for="thresholdSlider">Threshold:</label>
-      <input type="range" id="thresholdSlider" min="50" max="100" value="90" step="5" oninput="updateThresholdDisplay()">
-      <span class="threshold-value" id="thresholdValue">90%</span>
-    </div>
-    <span class="hybrid-status" id="hybridStatus"></span>
   </div>
 
   <p class="examples-label">Try an example:</p>
@@ -651,6 +822,21 @@
 
     <div class="high-conf-info" id="highConfInfo"></div>
 
+    <div class="feedback-row" id="feedbackRow">
+      <span class="feedback-label">Was this correct?</span>
+      <button class="fb-btn correct" id="fbCorrect" onclick="submitFeedback(true)">&#x1F44D; Yes</button>
+      <button class="fb-btn incorrect" id="fbIncorrect" onclick="submitFeedback(false)">&#x1F44E; No</button>
+    </div>
+
+    <div class="correction-row" id="correctionRow">
+      <span class="correction-label">Correct label:</span>
+      <button class="correction-btn entailment" onclick="submitCorrection('entailment')">entailment</button>
+      <button class="correction-btn neutral" onclick="submitCorrection('neutral')">neutral</button>
+      <button class="correction-btn contradiction" onclick="submitCorrection('contradiction')">contradiction</button>
+    </div>
+
+    <div class="feedback-thanks" id="feedbackThanks"></div>
+
     <div class="inference-time" id="timing"></div>
   </div>
 
@@ -689,14 +875,187 @@ function toggleReasoning() {
   btn.textContent = el.classList.contains("expanded") ? "Hide reasoning" : "Show reasoning";
 }
 
-function onHybridToggle() {
-  const on = document.getElementById("hybridToggle").checked;
-  document.getElementById("thresholdWrap").style.display = on ? "flex" : "none";
-}
-
 function updateThresholdDisplay() {
   const val = document.getElementById("thresholdSlider").value;
   document.getElementById("thresholdValue").textContent = val + "%";
+}
+
+// ---------------------------------------------------------------------------
+// Model selection state
+// ---------------------------------------------------------------------------
+let currentModel = null;       // "base", "large", or "qwen"
+let serverModel = null;        // which DeBERTa is loaded on server: "base" or "large"
+let modelsData = {};           // model info from /models
+let hybridAvailable = false;
+let lastPrediction = null;
+
+const MODEL_OPTIONS = [
+  { key: "base", name: "DeBERTa-v3-base", desc: "86M, fast (~0.4s)", tag: "54.6%", needsServer: "base", hybrid: false },
+  { key: "large", name: "DeBERTa-v3-large", desc: "304M, accurate (~1.2s)", tag: "68.2%", needsServer: "large", hybrid: false },
+  { key: "hybrid", name: "Hybrid (Large + Qwen-72B)", desc: "Routes uncertain to LLM", tag: "72.1%", needsServer: "large", hybrid: true },
+  { key: "qwen", name: "Qwen-72B Only", desc: "LLM for all predictions (~5-8s)", tag: "LLM", needsServer: null, hybrid: true, forceAll: true },
+];
+
+function renderModelOptions() {
+  const container = document.getElementById("modelOptions");
+  container.innerHTML = "";
+
+  MODEL_OPTIONS.forEach(opt => {
+    const available = getOptionAvailable(opt);
+    const isActive = currentModel === opt.key;
+
+    const div = document.createElement("div");
+    div.className = "model-opt" + (isActive ? " active" : "") + (!available ? " unavailable" : "");
+    div.onclick = () => available && selectModel(opt.key);
+
+    div.innerHTML = `
+      <div class="model-opt-radio"></div>
+      <div class="model-opt-info">
+        <div class="model-opt-name">${opt.name}</div>
+        <div class="model-opt-desc">${opt.desc}${!available ? ' (not available)' : ''}</div>
+      </div>
+      <span class="model-opt-tag">${opt.tag}</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function getOptionAvailable(opt) {
+  if (opt.key === "qwen" || opt.key === "hybrid") {
+    if (!hybridAvailable) return false;
+  }
+  if (opt.needsServer && modelsData[opt.needsServer] && !modelsData[opt.needsServer].downloaded) {
+    return false;
+  }
+  return true;
+}
+
+async function selectModel(key) {
+  if (key === currentModel) return;
+
+  const opt = MODEL_OPTIONS.find(o => o.key === key);
+  if (!opt) return;
+
+  // Switch server model if needed
+  if (opt.needsServer && opt.needsServer !== serverModel) {
+    // Mark loading
+    document.querySelectorAll(".model-opt").forEach(el => el.classList.remove("active"));
+    const idx = MODEL_OPTIONS.findIndex(o => o.key === key);
+    const els = document.querySelectorAll(".model-opt");
+    if (els[idx]) { els[idx].classList.add("active", "loading"); }
+
+    try {
+      const res = await fetch("/models/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: opt.needsServer })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.detail || "Failed to switch model");
+        renderModelOptions();
+        return;
+      }
+      serverModel = data.active_model;
+    } catch(e) {
+      alert("Error switching model: " + e.message);
+      renderModelOptions();
+      return;
+    }
+  }
+
+  currentModel = key;
+
+  // Show/hide threshold slider
+  document.getElementById("thresholdRow").style.display = opt.hybrid ? "flex" : "none";
+
+  // If qwen-only, set threshold to 100%
+  if (opt.forceAll) {
+    document.getElementById("thresholdSlider").value = 100;
+    updateThresholdDisplay();
+  } else if (opt.hybrid) {
+    document.getElementById("thresholdSlider").value = 90;
+    updateThresholdDisplay();
+  }
+
+  updateBadge();
+  renderModelOptions();
+}
+
+function updateBadge() {
+  const badge = document.getElementById("modelBadge");
+  const opt = MODEL_OPTIONS.find(o => o.key === currentModel);
+  if (opt) {
+    badge.innerHTML = '<span class="dot"></span> ' + opt.name;
+  }
+}
+
+async function loadModelInfo() {
+  try {
+    const res = await fetch("/models");
+    const data = await res.json();
+    serverModel = data.active_model;
+    hybridAvailable = data.hybrid_available;
+    data.models.forEach(m => { modelsData[m.key] = m; });
+
+    // Set initial selection based on what's loaded
+    if (serverModel === "large") {
+      currentModel = "large";
+    } else {
+      currentModel = "base";
+    }
+
+    updateBadge();
+    renderModelOptions();
+  } catch(e) { console.error(e); }
+}
+
+// ---------------------------------------------------------------------------
+// Feedback
+// ---------------------------------------------------------------------------
+function resetFeedbackUI() {
+  document.getElementById("fbCorrect").disabled = false;
+  document.getElementById("fbIncorrect").disabled = false;
+  document.getElementById("fbCorrect").className = "fb-btn correct";
+  document.getElementById("fbIncorrect").className = "fb-btn incorrect";
+  document.getElementById("correctionRow").classList.remove("visible");
+  document.getElementById("feedbackThanks").classList.remove("visible");
+  document.getElementById("feedbackThanks").textContent = "";
+  document.querySelectorAll(".correction-btn").forEach(b => b.classList.remove("selected"));
+}
+
+async function submitFeedback(isCorrect) {
+  if (!lastPrediction) return;
+
+  const d = lastPrediction.data;
+  document.getElementById("fbCorrect").disabled = true;
+  document.getElementById("fbIncorrect").disabled = true;
+
+  if (isCorrect) {
+    document.getElementById("fbCorrect").className = "fb-btn correct selected-correct";
+    try {
+      await fetch("/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          premise: lastPrediction.premise,
+          hypothesis: lastPrediction.hypothesis,
+          predicted_label: d.label,
+          is_correct: true,
+          correct_label: null,
+          confidence: d.confidence,
+          model: d.model,
+          routed_to_llm: d.routed_to_llm,
+          llm_label: d.llm_label,
+        })
+      });
+      document.getElementById("feedbackThanks").textContent = "Thanks for the feedback!";
+      document.getElementById("feedbackThanks").classList.add("visible");
+    } catch(e) { console.error("Feedback error:", e); }
+  } else {
+    document.getElementById("fbIncorrect").className = "fb-btn incorrect selected-incorrect";
+    document.getElementById("correctionRow").classList.add("visible");
+  }
 }
 
 async function predict() {
@@ -704,8 +1063,14 @@ async function predict() {
   const hypothesis = document.getElementById("hypothesis").value.trim();
   if (!premise || !hypothesis) return;
 
-  const hybrid = document.getElementById("hybridToggle").checked;
+  const opt = MODEL_OPTIONS.find(o => o.key === currentModel);
+  const hybrid = opt ? opt.hybrid : false;
   const threshold = hybrid ? parseInt(document.getElementById("thresholdSlider").value) / 100 : null;
+
+  // For qwen-only, always force threshold to 1.0
+  const finalThreshold = (opt && opt.forceAll) ? 1.0 : threshold;
+
+  console.log("Predict:", { currentModel, hybrid, threshold: finalThreshold });
 
   document.getElementById("predictBtn").disabled = true;
   document.getElementById("spinner").classList.add("active");
@@ -713,15 +1078,18 @@ async function predict() {
   document.getElementById("error").classList.remove("visible");
   document.getElementById("routingInfo").classList.remove("visible");
   document.getElementById("reasoningText").classList.remove("expanded");
+  document.getElementById("routingStats").style.display = "";
+  document.querySelector(".routing-header").innerHTML = '&#x1F916; Hybrid Routing - LLM Override <button class="toggle-reasoning" id="toggleReasoning" onclick="toggleReasoning()">Show reasoning</button>';
   const hci = document.getElementById("highConfInfo");
   hci.classList.remove("visible");
   hci.textContent = "";
+  resetFeedbackUI();
 
   try {
     const res = await fetch("/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ premise, hypothesis, hybrid, confidence_threshold: threshold })
+      body: JSON.stringify({ premise, hypothesis, hybrid, confidence_threshold: finalThreshold })
     });
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
     const data = await res.json();
@@ -741,8 +1109,8 @@ async function predict() {
     document.getElementById("valN").textContent = (p.neutral * 100).toFixed(1) + "%";
     document.getElementById("valC").textContent = (p.contradiction * 100).toFixed(1) + "%";
 
-    // Routing info
-    if (data.routed_to_llm) {
+    // Routing info — only for hybrid mode (not qwen-only)
+    if (data.routed_to_llm && currentModel === "hybrid") {
       document.getElementById("routingInfo").classList.add("visible");
 
       const changed = data.deberta_label !== data.llm_label;
@@ -759,22 +1127,43 @@ async function predict() {
         </div>
       `;
       document.getElementById("routingStats").innerHTML = statsHtml;
+      document.getElementById("routingStats").style.display = "";
 
       const reasonText = data.llm_reasoning || "";
       document.getElementById("reasoningText").textContent = reasonText;
       document.getElementById("toggleReasoning").textContent = "Show reasoning";
-    } else if (hybrid) {
+    }
+    // Qwen-only — show reasoning without routing stats
+    else if (data.routed_to_llm && currentModel === "qwen") {
+      document.getElementById("routingInfo").classList.add("visible");
+      document.getElementById("routingStats").style.display = "none";
+      const headerEl = document.querySelector(".routing-header");
+      headerEl.innerHTML = '&#x1F916; Qwen-72B Reasoning <button class="toggle-reasoning" id="toggleReasoning" onclick="toggleReasoning()">Show reasoning</button>';
+
+      const reasonText = data.llm_reasoning || "";
+      document.getElementById("reasoningText").textContent = reasonText;
+    }
+    // Hybrid mode but high confidence — no routing happened
+    else if (currentModel === "hybrid" && !data.routed_to_llm) {
       const hci = document.getElementById("highConfInfo");
       hci.classList.add("visible");
       hci.textContent = 'DeBERTa confidence ' + (data.confidence * 100).toFixed(1) + '% >= ' + (data.confidence_threshold * 100).toFixed(0) + '% threshold -- no LLM needed (' + (data.deberta_time_ms || data.inference_time_ms).toFixed(0) + 'ms)';
     }
 
     const timingParts = [data.inference_time_ms.toFixed(0) + "ms"];
-    if (data.routed_to_llm) timingParts.push("(routed to " + data.llm_model + ")");
-    else if (hybrid) timingParts.push("(high confidence — DeBERTa only)");
+    if (currentModel === "qwen") timingParts.push("(Qwen-72B)");
+    else if (data.routed_to_llm && currentModel === "hybrid") timingParts.push("(routed to LLM)");
+    else if (currentModel === "hybrid" && !data.routed_to_llm) timingParts.push("(DeBERTa only)");
     document.getElementById("timing").textContent = timingParts.join(" ");
 
     document.getElementById("result").classList.add("visible");
+
+    // Store for feedback
+    lastPrediction = {
+      premise: premise,
+      hypothesis: hypothesis,
+      data: data,
+    };
   } catch (err) {
     const errEl = document.getElementById("error");
     errEl.textContent = err.message;
@@ -789,85 +1178,33 @@ document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") predict();
 });
 
-// Model state
-let currentModel = null;
-let models = {};
-let hybridAvailable = false;
+async function submitCorrection(correctLabel) {
+  if (!lastPrediction) return;
 
-async function loadModelInfo() {
-  try {
-    const res = await fetch("/models");
-    const data = await res.json();
-    currentModel = data.active_model;
-    hybridAvailable = data.hybrid_available;
-    data.models.forEach(m => { models[m.key] = m; });
-    updateModelBadge();
-    updateHybridStatus();
-  } catch(e) { console.error(e); }
-}
-
-function updateModelBadge() {
-  const badge = document.getElementById("modelBadge");
-  const info = models[currentModel];
-  if (info) {
-    badge.innerHTML = `<span class="dot"></span> ${info.name} (${info.params})`;
-  }
-  const btn = document.getElementById("switchBtn");
-  const other = currentModel === "base" ? "large" : "base";
-  const otherInfo = models[other];
-  if (otherInfo && otherInfo.downloaded) {
-    btn.textContent = `Switch to ${otherInfo.name}`;
-    btn.style.display = "";
-  } else if (otherInfo && !otherInfo.downloaded) {
-    btn.textContent = `${otherInfo.name} (not downloaded)`;
-    btn.style.opacity = "0.5";
-    btn.style.cursor = "not-allowed";
-  } else {
-    btn.style.display = "none";
-  }
-}
-
-function updateHybridStatus() {
-  const status = document.getElementById("hybridStatus");
-  const toggle = document.getElementById("hybridToggle");
-  if (hybridAvailable) {
-    status.textContent = "LLM available";
-    status.className = "hybrid-status active";
-    toggle.disabled = false;
-  } else {
-    status.textContent = "LLM not configured";
-    status.className = "hybrid-status unavailable";
-    toggle.disabled = true;
-    toggle.checked = false;
-  }
-}
-
-async function switchModel() {
-  const other = currentModel === "base" ? "large" : "base";
-  if (!models[other] || !models[other].downloaded) return;
-
-  const btn = document.getElementById("switchBtn");
-  btn.textContent = "Loading...";
-  btn.disabled = true;
+  const d = lastPrediction.data;
+  document.querySelectorAll(".correction-btn").forEach(b => b.classList.remove("selected"));
+  event.target.classList.add("selected");
 
   try {
-    const res = await fetch("/models/switch", {
+    await fetch("/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: other })
+      body: JSON.stringify({
+        premise: lastPrediction.premise,
+        hypothesis: lastPrediction.hypothesis,
+        predicted_label: d.label,
+        is_correct: false,
+        correct_label: correctLabel,
+        confidence: d.confidence,
+        model: d.model,
+        routed_to_llm: d.routed_to_llm,
+        llm_label: d.llm_label,
+      })
     });
-    const data = await res.json();
-    if (res.ok) {
-      currentModel = data.active_model;
-      updateModelBadge();
-    } else {
-      alert(data.detail || "Failed to switch model");
-    }
-  } catch(e) {
-    alert("Error switching model: " + e.message);
-  } finally {
-    btn.disabled = false;
-  }
+    document.getElementById("feedbackThanks").textContent = "Correction saved -- thanks! This helps improve the model.";
+    document.getElementById("feedbackThanks").classList.add("visible");
+    document.getElementById("correctionRow").classList.remove("visible");
+  } catch(e) { console.error("Feedback error:", e); }
 }
 
 loadModelInfo();
