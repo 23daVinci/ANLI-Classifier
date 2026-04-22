@@ -104,6 +104,9 @@ Get a free token at https://huggingface.co/settings/tokens. Without this, the se
 ### Run with Docker Compose (Recommended)
 
 ```bash
+# Create feedback file before first run (Docker mounts it as a volume)
+echo "[]" > feedback.json
+
 # Build and start
 docker compose up --build
 

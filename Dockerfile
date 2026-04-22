@@ -27,6 +27,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY main.py .
+COPY core/ ./core/
+COPY models/ ./models/
+COPY services/ ./services/
+COPY routers/ ./routers/
 COPY static/ ./static/
 COPY figures/ ./figures/
 
@@ -39,7 +43,7 @@ EXPOSE 8000
 
 # Health check — container orchestrators use this
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health/ready')" || exit 1
 
 # Run with uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
