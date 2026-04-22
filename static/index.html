@@ -945,7 +945,7 @@ async function selectModel(key) {
     if (els[idx]) { els[idx].classList.add("active", "loading"); }
 
     try {
-      const res = await fetch("/models/switch", {
+      const res = await fetch("/v1/models/switch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ model: opt.needsServer })
@@ -992,7 +992,7 @@ function updateBadge() {
 
 async function loadModelInfo() {
   try {
-    const res = await fetch("/models");
+    const res = await fetch("/v1/models");
     const data = await res.json();
     serverModel = data.active_model;
     hybridAvailable = data.hybrid_available;
@@ -1034,7 +1034,7 @@ async function submitFeedback(isCorrect) {
   if (isCorrect) {
     document.getElementById("fbCorrect").className = "fb-btn correct selected-correct";
     try {
-      await fetch("/feedback", {
+      await fetch("/v1/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -1086,7 +1086,7 @@ async function predict() {
   resetFeedbackUI();
 
   try {
-    const res = await fetch("/predict", {
+    const res = await fetch("/v1/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ premise, hypothesis, hybrid, confidence_threshold: finalThreshold })
