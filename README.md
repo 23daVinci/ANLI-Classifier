@@ -21,25 +21,50 @@
 
 ```
 anli-nli-classifier/
+├── main.py                           # App entry point — creates FastAPI app, mounts routers
+├── core/
+│   ├── config.py                     # Pydantic Settings — all env vars and constants
+│   └── lifespan.py                   # Startup/shutdown (model load, LLM client init)
+├── models/                           # Pydantic request/response schemas
+│   ├── prediction.py                 # PredictionRequest/Response, BatchRequest/Response
+│   ├── health.py                     # LivenessResponse, ReadinessResponse
+│   ├── registry.py                   # ModelInfo, ModelsResponse, SwitchRequest/Response
+│   └── feedback.py                   # FeedbackRequest/Response, FeedbackStatsResponse
+├── services/                         # ML and business logic
+│   ├── model_service.py              # ModelState, load_model, get_available_models
+│   ├── llm_service.py                # LLMState, init_llm_client, llm_classify
+│   ├── inference_service.py          # predict_single (DeBERTa + hybrid routing)
+│   └── feedback_service.py           # load/save/append/compute_stats
+├── routers/                          # API endpoints (all versioned under /v1)
+│   ├── health.py                     # GET /v1/health/live, GET /v1/health/ready
+│   ├── models.py                     # GET /v1/models, POST /v1/models/switch
+│   ├── predict.py                    # POST /v1/predict, POST /v1/predict/batch
+│   ├── feedback.py                   # POST /v1/feedback, GET /v1/feedback/stats|export
+│   └── ui.py                         # GET /, GET /presentation
+├── tests/
+│   ├── conftest.py                   # Shared fixtures (client, loaded_model)
+│   ├── test_health.py
+│   ├── test_predict.py
+│   ├── test_models.py
+│   └── test_feedback.py
 ├── notebooks/
-│   ├── phase1_eda.ipynb              # Exploratory Data Analysis
-│   ├── phase2_baselines.ipynb        # Baseline models
-│   ├── phase3_deberta.ipynb          # DeBERTa-v3 evaluation + error analysis
-│   └── phase4_hybrid.ipynb           # Hybrid routing experiment
+│   ├── EDA.ipynb                     # Exploratory Data Analysis
+│   ├── Baseline.ipynb                # Baseline models
+│   └── Phase_3.ipynb                 # DeBERTa-v3 evaluation + error analysis
 ├── figures/                          # Plots from EDA and evaluation
 ├── best_model/                       # Model weights (not in repo — see Setup)
 │   ├── base/                         # DeBERTa-v3-base (~360MB)
 │   └── large/                        # DeBERTa-v3-large (~1.2GB, optional)
-├── main.py                           # FastAPI inference server (with hybrid routing)
 ├── static/
 │   ├── index.html                    # Web UI with hybrid toggle + threshold slider
 │   └── presentation.html             # Interactive project presentation
 ├── download_model.py                 # Model download script (base / large / both)
 ├── Dockerfile
-├── docker-compose.yml
-├── .env                              # HF_TOKEN for hybrid routing (not in repo)
+├── docker-compose.yaml
+├── pyrightconfig.json                # Pyright/Pylance type checker config
+├── pytest.ini                        # Test runner config
+├── .env                              # Local env vars — MODEL_DIR, HF_TOKEN (not in repo)
 ├── requirements.txt                  # API dependencies (CPU-only torch)
-├── results_summary.json              # Evaluation metrics
 └── README.md
 ```
 
@@ -91,7 +116,8 @@ The server auto-detects available models and loads the best one at startup (pref
 - **Web UI**: `http://localhost:8000` — interactive classifier with hybrid toggle
 - **Presentation**: `http://localhost:8000/presentation` — full project walkthrough
 - **Swagger UI**: `http://localhost:8000/docs` — API documentation
-- **Health Check**: `http://localhost:8000/health`
+- **Liveness**: `http://localhost:8000/v1/health/live`
+- **Readiness**: `http://localhost:8000/v1/health/ready`
 
 ### Run with Docker Directly
 
@@ -104,8 +130,7 @@ docker run -p 8000:8000 -v ./best_model:/app/model:ro -e HF_TOKEN=$HF_TOKEN anli
 
 ```bash
 pip install -r requirements.txt
-export MODEL_DIR=./best_model
-export HF_TOKEN=hf_your_token_here
+# Set MODEL_DIR and HF_TOKEN in .env (see Hybrid Routing Setup above)
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -140,7 +165,7 @@ Toggle "Hybrid mode" in the UI and adjust the confidence threshold slider (50-10
 
 ```bash
 # Standard prediction (DeBERTa only)
-curl -X POST http://localhost:8000/predict \
+curl -X POST http://localhost:8000/v1/predict \
   -H "Content-Type: application/json" \
   -d '{
     "premise": "The Parma trolleybus system comprises four urban routes.",
@@ -148,7 +173,7 @@ curl -X POST http://localhost:8000/predict \
   }'
 
 # Hybrid prediction (routes to LLM if confidence < 0.90)
-curl -X POST http://localhost:8000/predict \
+curl -X POST http://localhost:8000/v1/predict \
   -H "Content-Type: application/json" \
   -d '{
     "premise": "The Parma trolleybus system comprises four urban routes.",
@@ -157,7 +182,7 @@ curl -X POST http://localhost:8000/predict \
   }'
 
 # Hybrid with custom threshold (force all predictions through LLM)
-curl -X POST http://localhost:8000/predict \
+curl -X POST http://localhost:8000/v1/predict \
   -H "Content-Type: application/json" \
   -d '{
     "premise": "Muccan Station is a pastoral lease that operates as a cattle station.",
@@ -193,10 +218,10 @@ The server supports live model switching without restart.
 
 ```bash
 # List available models
-curl http://localhost:8000/models
+curl http://localhost:8000/v1/models
 
 # Switch to large model
-curl -X POST http://localhost:8000/models/switch \
+curl -X POST http://localhost:8000/v1/models/switch \
   -H "Content-Type: application/json" \
   -d '{"model": "large"}'
 ```
@@ -206,13 +231,17 @@ curl -X POST http://localhost:8000/models/switch \
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/` | Web UI with hybrid toggle and threshold slider |
-| `GET` | `/health` | Health check (includes hybrid availability) |
-| `GET` | `/models` | List available models and active model |
-| `GET` | `/docs` | Swagger UI |
 | `GET` | `/presentation` | Interactive project presentation |
-| `POST` | `/predict` | Classification (with optional hybrid routing) |
-| `POST` | `/predict/batch` | Batch classification (up to 64) |
-| `POST` | `/models/switch` | Switch active model (base/large) |
+| `GET` | `/docs` | Swagger UI |
+| `GET` | `/v1/health/live` | Liveness — is the process running? (always 200) |
+| `GET` | `/v1/health/ready` | Readiness — is the model loaded? (200 or 503) |
+| `GET` | `/v1/models` | List available models and active model |
+| `POST` | `/v1/models/switch` | Switch active model (base/large) without restart |
+| `POST` | `/v1/predict` | Classification (with optional hybrid routing) |
+| `POST` | `/v1/predict/batch` | Batch classification (up to 64 pairs) |
+| `POST` | `/v1/feedback` | Submit correctness feedback on a prediction |
+| `GET` | `/v1/feedback/stats` | Aggregated feedback statistics |
+| `GET` | `/v1/feedback/export` | Export all feedback as JSON |
 
 ## Methodology
 
@@ -240,13 +269,17 @@ ANLI Round 2 (Nie et al., 2020) — 45,460 training / 1,000 dev / 1,000 test exa
 
 ## Configuration
 
+All variables can be set in `.env` (local) or as real environment variables (Docker). Validated at startup by Pydantic Settings.
+
 | Environment Variable | Default | Description |
 |---|---|---|
-| `MODEL_DIR` | `/app/model` | Path to model weights directory |
+| `MODEL_DIR` | `/app/model` | Path to model weights directory (`best_model` locally) |
 | `MAX_LENGTH` | `256` | Maximum token sequence length |
+| `DEVICE` | auto-detected | `cuda` or `cpu` — override to force one |
 | `HF_TOKEN` | `None` | HuggingFace token for hybrid routing |
 | `LLM_MODEL` | `Qwen/Qwen2.5-72B-Instruct` | Reasoning LLM model ID |
 | `CONFIDENCE_THRESHOLD` | `0.90` | Default routing threshold |
+| `FEEDBACK_FILE` | `feedback.json` | Path to feedback storage file |
 
 ## References
 
