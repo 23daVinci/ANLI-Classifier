@@ -2,6 +2,9 @@
 best_model/
 artifacts/
 
+# Runtime data
+feedback.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
